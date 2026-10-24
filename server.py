@@ -15,7 +15,7 @@ load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 HERE = os.path.dirname(os.path.abspath(__file__))
 MONGODB_URI = os.environ.get("MONGODB_URI", "")
 DB_NAME = os.environ.get("MONGODB_DB", "smart_attendance")
-HOST = os.environ.get("HOST", "127.0.0.1")          # 0.0.0.0 to allow other devices / hosting
+HOST = os.environ.get("HOST", "0.0.0.0")          # 0.0.0.0 for hosting / LAN access
 PORT = int(os.environ.get("PORT", "8000"))
 LOCK = threading.Lock()
 COLS = ("institutes", "users", "sections", "subjects", "students", "schedule", "settings")
