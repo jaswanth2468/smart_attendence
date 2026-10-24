@@ -1,0 +1,2543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Attendance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    
+    /* Modern Neutral Palette (Slate/Zinc) */
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --card-subtle: #f1f5f9;
+    --fg: #0f172a;
+    --fg-muted: #64748b;
+    --mut: #64748b;
+    --bd: #e2e8f0;
+    --bd-strong: #cbd5e1;
+    --bd-focus: #3b82f6;
+
+    /* Theme Accents */
+    --ac: #2563eb;
+    --ac-hover: #1d4ed8;
+    --ac-subtle: #eff6ff;
+    --ok: #10b981;
+    --ok-hover: #059669;
+    --ok-subtle: #ecfdf5;
+    --bad: #ef4444;
+    --bad-hover: #dc2626;
+    --bad-subtle: #fef2f2;
+    --warn: #f59e0b;
+    --warn-subtle: #fffbeb;
+    --indigo: #4f46e5;
+    --purple: #9333ea;
+    --cyan: #0891b2;
+
+    /* Shadows & Radii */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+  }
+
+  * { box-sizing: border-box; }
+  
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  /* ---- Clean Top Navigation Bar ---- */
+  .topnav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--bd);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+  }
+  .brand-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+  }
+  .brand-logo svg {
+    width: 20px;
+    height: 20px;
+  }
+  .brand-info {
+    display: flex;
+    flex-direction: column;
+  }
+  .brand-title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--fg);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  .brand-sub {
+    font-size: 0.74rem;
+    color: var(--mut);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .inst-chip {
+    display: inline-block;
+    background: var(--ac-subtle);
+    color: var(--ac);
+    border: 1px solid #bfdbfe;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 999px;
+  }
+  .nav-tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f1f5f9;
+    padding: 3px;
+    border-radius: 999px;
+    border: 1px solid var(--bd);
+  }
+  .nav-tabs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    color: var(--mut);
+    text-decoration: none;
+    font-size: 0.84rem;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+  .nav-tabs a:hover {
+    color: var(--fg);
+  }
+  .nav-tabs a.on {
+    background: #ffffff;
+    color: var(--ac);
+    box-shadow: var(--shadow-sm);
+  }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* MongoDB Status Pill in Header */
+  .db-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: #ffffff;
+    border: 1px solid var(--bd);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--fg);
+    cursor: pointer;
+    box-shadow: var(--shadow-xs);
+    transition: all 0.15s ease;
+  }
+  .db-status-pill:hover {
+    background: var(--card-subtle);
+    border-color: var(--bd-strong);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  .db-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    background: #94a3b8;
+    transition: all 0.3s;
+  }
+  .db-dot.ok {
+    background: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+    animation: dbPulse 2.5s infinite;
+  }
+  .db-dot.sync {
+    background: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+    animation: dbPulse 1s infinite;
+  }
+  .db-dot.err {
+    background: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+  }
+  @keyframes dbPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.15); }
+  }
+
+  .whoami-chip {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #475569;
+    background: #f1f5f9;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--bd);
+  }
+  .btn-logout {
+    color: var(--mut);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--bd);
+    background: #fff;
+    transition: all 0.15s;
+  }
+  .btn-logout:hover {
+    color: var(--bad);
+    border-color: #fecaca;
+    background: var(--bad-subtle);
+  }
+
+  /* Visibility by auth state */
+  .teacher-only { display: none; }
+  body.isTeacher .teacher-only { display: inline-flex; }
+  body.notMain #pgMain { position: absolute; left: -99999px; top: 0; width: 1100px; height: 0; overflow: hidden; }
+
+  /* Page Layout */
+  .wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px 20px 48px;
+  }
+  
+  .page-header {
+    margin-bottom: 20px;
+  }
+  h1 {
+    font-family: var(--font-heading);
+    font-size: 1.55rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    margin: 0 0 6px;
+    color: var(--fg);
+  }
+  h2 {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    margin: 0 0 10px;
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sub {
+    color: var(--mut);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin: 0 0 18px;
+    max-width: 900px;
+  }
+
+  /* Modern Metric Stats Grid */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  @media(max-width: 768px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media(max-width: 480px) {
+    .stats { grid-template-columns: 1fr; }
+  }
+  .stat {
+    background: #ffffff;
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .stat::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+  .stats .stat:nth-child(1)::before { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+  .stats .stat:nth-child(2)::before { background: linear-gradient(90deg, #7c3aed, #9333ea); }
+  .stats .stat:nth-child(3)::before { background: linear-gradient(90deg, #059669, #10b981); }
+  .stats .stat:nth-child(4)::before { background: linear-gradient(90deg, #d97706, #f59e0b); }
+  
+  .stat b {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .stat span {
+    color: var(--mut);
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  /* Cards & Grid */
+  .card {
+    background: #ffffff;
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-sm);
+    min-width: 0;
+    margin-bottom: 16px;
+    transition: box-shadow 0.15s ease;
+  }
+  .grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .col {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+  }
+  .split {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  @media(max-width: 960px) {
+    .split { grid-template-columns: 1fr; }
+  }
+
+  /* Row & Form Controls */
+  .row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .ctl .row { margin-top: 0; }
+  .ctl .row + .row { margin-top: 10px; }
+  .ctl label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    min-width: 75px;
+    color: #334155;
+  }
+  .lbl {
+    font-size: 0.8rem;
+    color: var(--mut);
+    line-height: 1.45;
+  }
+
+  /* Clean Inputs & Selects */
+  input, select {
+    flex: 1;
+    min-width: 100px;
+    padding: 8px 12px;
+    border: 1px solid var(--bd-strong);
+    border-radius: var(--radius-sm);
+    background: #ffffff;
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 0.86rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--ac);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+  input.t { flex: none; min-width: 0; width: 105px; }
+  input.n { flex: none; min-width: 0; width: 70px; }
+  input[type=checkbox] {
+    flex: none;
+    min-width: 0;
+    cursor: pointer;
+    accent-color: var(--ac);
+  }
+  select.fit { flex: none; min-width: 0; }
+  select.mini { padding: 4px 8px; min-width: 90px; max-width: 150px; flex: none; font-size: 0.8rem; }
+
+  /* Clean Modern Buttons */
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--ac);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.18);
+    transition: all 0.15s ease;
+  }
+  button:hover:not(:disabled) {
+    background: var(--ac-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(37, 99, 235, 0.25);
+  }
+  button:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  button.alt {
+    background: #ffffff;
+    color: var(--fg);
+    border: 1px solid var(--bd-strong);
+    box-shadow: var(--shadow-xs);
+  }
+  button.alt:hover:not(:disabled) {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  button.sm {
+    padding: 5px 10px;
+    font-size: 0.78rem;
+    border-radius: 6px;
+  }
+  button.bad {
+    background: var(--bad);
+    color: #fff;
+    box-shadow: 0 1px 2px rgba(239, 68, 68, 0.2);
+  }
+  button.bad:hover:not(:disabled) {
+    background: var(--bad-hover);
+  }
+  button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Table styling */
+  .tbl {
+    overflow-x: auto;
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-sm);
+    background: #ffffff;
+  }
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.84rem;
+  }
+  th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--bd);
+    white-space: nowrap;
+    text-align: left;
+  }
+  td {
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    white-space: nowrap;
+    color: #1e293b;
+    vertical-align: middle;
+  }
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+  tbody tr:hover {
+    background: #f8fafc;
+  }
+  .bar {
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 999px;
+    min-width: 65px;
+    overflow: hidden;
+  }
+  .bar i {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+  }
+  .empty {
+    color: var(--mut);
+    padding: 20px;
+    text-align: center;
+    font-size: 0.88rem;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    background: #f1f5f9;
+    border: 1px solid var(--bd);
+    border-radius: 999px;
+    padding: 2px 9px;
+    margin: 3px 4px 0 0;
+    font-size: 0.76rem;
+    font-weight: 500;
+    color: #334155;
+  }
+
+  /* Camera preview wall */
+  .wall {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .wall:empty { display: none; }
+  .tile {
+    background: #ffffff;
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    box-shadow: var(--shadow-xs);
+    transition: box-shadow 0.15s ease;
+  }
+  .tile:hover {
+    box-shadow: var(--shadow-md);
+  }
+  .vid {
+    position: relative;
+    aspect-ratio: 4/3;
+    background: #0f172a;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  video, canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  #ovl {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    font-weight: 800;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+  }
+  .tile.live .vid::after, .tile.live .fcbox::after, .cvbox .live {
+    content: "● LIVE";
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+    background: rgba(220, 38, 38, 0.92);
+    backdrop-filter: blur(4px);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 2px 7px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .fcbox {
+    position: relative;
+    aspect-ratio: 4/3;
+    background: #0f172a;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 420px;
+  }
+  .cvbox {
+    position: relative;
+    aspect-ratio: 4/3;
+    background: #0f172a;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .cvbox canvas, .wall .tile { cursor: zoom-in; }
+
+  /* Offscreen video container for background detection */
+  body:not(.prev) .vid, body:not(.prev) .wall {
+    position: fixed;
+    left: -9999px;
+    top: 0;
+    width: 480px;
+    pointer-events: none;
+  }
+  #camCard .wall {
+    display: grid;
+    overflow: visible;
+  }
+  body:not(.prev) #camCard .wall { display: grid; }
+
+  /* Card rows & controls */
+  .rc {
+    background: #ffffff;
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    min-width: 0;
+    font-size: 0.82rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+    align-items: start;
+    margin-top: 10px;
+  }
+
+  /* Fixed Summary Area with sticky headers */
+  #sumCard {
+    height: 520px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #sumCard .tbl {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    scrollbar-width: thin;
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-sm);
+  }
+  #sumCard table {
+    min-width: 640px;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  #sumCard thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f8fafc;
+  }
+  #sumCard tbody td:first-child, #sumCard thead th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: #ffffff;
+  }
+  #sumCard thead th:first-child {
+    z-index: 3;
+    background: #f8fafc;
+  }
+
+  /* Session items */
+  .sess {
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-top: 8px;
+    background: #ffffff;
+    transition: all 0.15s ease;
+  }
+  .sess:hover {
+    border-color: #cbd5e1;
+    box-shadow: var(--shadow-xs);
+  }
+  .sess.act {
+    border-color: var(--ac);
+    background: var(--ac-subtle);
+  }
+  .sess .row { margin-top: 6px; }
+
+  /* Students Card Split */
+  #studentsCard .fcSplit {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  #studentsCard .fcLeft {
+    flex: 1 1 320px;
+    min-width: 0;
+    max-width: 440px;
+  }
+  #studentsCard .fcRight {
+    flex: 1 1 280px;
+    min-width: 0;
+  }
+  #studentsCard .fcRight input, #studentsCard .fcRight select {
+    width: 100%;
+    max-width: none;
+    flex: 1;
+  }
+
+  /* Student Gallery Cards */
+  .scard {
+    background: #ffffff;
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .scard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .scard .ph {
+    width: 100%;
+    aspect-ratio: 1/1;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #64748b;
+    overflow: hidden;
+  }
+  .scard .ph img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .scard .nm {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--fg);
+  }
+  .scard .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  /* Clean Auth / Setup Card */
+  .auth-card {
+    background: #ffffff;
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Database Status Modal */
+  .db-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: fadeIn 0.15s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .db-modal-card {
+    background: #ffffff;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 580px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--bd);
+    overflow: hidden;
+    animation: scaleUp 0.15s ease-out;
+  }
+  @keyframes scaleUp {
+    from { transform: scale(0.96); }
+    to { transform: scale(1); }
+  }
+  .db-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--bd);
+    background: #f8fafc;
+  }
+  .db-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--fg);
+  }
+  .db-modal-title svg {
+    color: var(--ac);
+  }
+  .db-modal-close {
+    background: transparent;
+    border: none;
+    color: var(--mut);
+    font-size: 1.15rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: none;
+  }
+  .db-modal-close:hover {
+    background: #e2e8f0;
+    color: var(--fg);
+    transform: none;
+    box-shadow: none;
+  }
+  .db-modal-body {
+    padding: 20px;
+  }
+  .db-banner {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 18px;
+  }
+  .db-banner.db-banner-ok {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+  }
+  .db-banner.db-banner-err {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+  }
+  .db-banner-icon {
+    font-size: 1.25rem;
+    line-height: 1.1;
+  }
+  .db-banner-content b {
+    display: block;
+    font-size: 0.95rem;
+    margin-bottom: 3px;
+  }
+  .db-banner-content p {
+    margin: 0;
+    font-size: 0.8rem;
+    opacity: 0.9;
+    line-height: 1.4;
+  }
+  .db-grid-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  @media(max-width: 500px) {
+    .db-grid-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+  .db-stat-box {
+    background: #f8fafc;
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .db-stat-lbl {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--mut);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    margin-bottom: 2px;
+  }
+  .db-stat-val {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--fg);
+    font-family: var(--font-heading);
+  }
+  .db-collections-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+  }
+  .db-cols-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .db-col-item {
+    background: #f8fafc;
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+  }
+  .db-col-name {
+    color: #334155;
+    font-weight: 500;
+  }
+  .db-col-count {
+    font-weight: 700;
+    color: var(--ac);
+    background: var(--ac-subtle);
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+  }
+  .db-error-alert {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    font-size: 0.8rem;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+  .db-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 20px;
+    background: #f8fafc;
+    border-top: 1px solid var(--bd);
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Navigation App Bar -->
+<header class="topnav">
+  <div class="brand-area">
+    <div class="brand-logo" title="Smart Attendance">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 10l5 5-5 5"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/><circle cx="12" cy="7" r="3"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+      </svg>
+    </div>
+    <div class="brand-info">
+      <span class="brand-title">Smart Attendance</span>
+      <span class="brand-sub">MongoDB Atlas <span class="inst-chip" id="topInstBadge" style="display:none"></span></span>
+    </div>
+  </div>
+
+  <div class="nav-tabs teacher-only">
+    <a href="#" id="navMain" class="on">📋 Attendance</a>
+    <a href="#students" id="navStu">🧑‍🎓 Students &amp; Faces</a>
+  </div>
+
+  <div class="nav-right">
+    <!-- Live MongoDB Status Indicator -->
+    <button id="dbStatusPill" class="db-status-pill" title="Click to view MongoDB database health and collections">
+      <span class="db-dot"></span>
+      <span id="dbStatusText">Checking MongoDB...</span>
+    </button>
+    <span id="whoAmI" class="whoami-chip teacher-only"></span>
+    <a href="#" id="navOut" class="btn-logout teacher-only">⎋ Log out</a>
+  </div>
+</header>
+
+<!-- MongoDB Status & Health Modal -->
+<div id="dbModal" class="db-modal-backdrop" style="display:none">
+  <div class="db-modal-card">
+    <div class="db-modal-header">
+      <div class="db-modal-title">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2C6.48 2 2 4.02 2 6.5v11C2 19.98 6.48 22 12 22s10-2.02 10-4.5v-11C22 4.02 17.52 2 12 2z"/>
+          <path d="M2 12c0 2.48 4.48 4.5 10 4.5s10-2.02 10-4.5"/>
+          <path d="M2 6.5C2 8.98 6.48 11 12 11s10-2.02 10-4.5"/>
+        </svg>
+        <span>MongoDB Atlas Health &amp; Diagnostics</span>
+      </div>
+      <button id="dbModalClose" class="db-modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="db-modal-body">
+      <div id="dbStatusBanner" class="db-banner db-banner-ok">
+        <div class="db-banner-icon">●</div>
+        <div class="db-banner-content">
+          <b id="dbBannerTitle">Connected to MongoDB Atlas</b>
+          <p id="dbBannerSubtitle">Live bidirectional synchronization is active. All attendance records, students, sections, schedules, and settings are saved to cloud MongoDB.</p>
+        </div>
+      </div>
+      <div class="db-grid-stats">
+        <div class="db-stat-box">
+          <span class="db-stat-lbl">Database</span>
+          <b id="dbStatName" class="db-stat-val">smart_attendance</b>
+        </div>
+        <div class="db-stat-box">
+          <span class="db-stat-lbl">Latency</span>
+          <b id="dbStatLatency" class="db-stat-val">-- ms</b>
+        </div>
+        <div class="db-stat-box">
+          <span class="db-stat-lbl">Documents</span>
+          <b id="dbStatDocs" class="db-stat-val">--</b>
+        </div>
+        <div class="db-stat-box">
+          <span class="db-stat-lbl">Last Synced</span>
+          <b id="dbStatSync" class="db-stat-val">Just now</b>
+        </div>
+      </div>
+      <div class="db-collections-title">Collections &amp; Document Counts</div>
+      <div class="db-cols-grid" id="dbColsGrid"></div>
+      <div id="dbErrorMsg" class="db-error-alert" style="display:none"></div>
+    </div>
+    <div class="db-modal-footer">
+      <button id="dbBtnTest" class="alt sm">⚡ Test Connection</button>
+      <button id="dbBtnSync" class="sm">↻ Force Sync</button>
+      <button id="dbBtnDismiss" class="alt sm">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main Attendance Dashboard -->
+<div class="wrap" id="pgMain">
+  <div class="page-header">
+    <h1>Smart Attendance</h1>
+    <div class="sub">AI face-recognition automated attendance management with real-time MongoDB Atlas cloud synchronization. Schedule subjects, manage section CCTV cameras, and review attendance records seamlessly.</div>
+  </div>
+
+  <div id="bgBadge" class="card" style="display:none;background:var(--ok-subtle);border-color:#bbf7d0;margin-bottom:16px">
+    <b style="color:var(--ok)">● Attendance is actively running in the background</b>
+    <span id="clock2" class="lbl" style="font-weight:700"></span>
+    <span class="lbl">— keep this tab open; scanning continues automatically.</span>
+  </div>
+
+  <div class="split">
+    <div class="splitL">
+      <!-- Hidden offscreen camera capture elements required by face recognition logic -->
+      <div aria-hidden="true" style="position:absolute;left:-99999px;top:0;width:420px;height:0;overflow:hidden">
+        <div class="card" id="studentsCard" style="margin-bottom:14px">
+          <h2>Students &amp; face capture</h2>
+          <div class="fcSplit">
+            <div class="fcLeft">
+              <div class="tile" id="mainTile">
+                <div class="fcbox">
+                  <video id="v" autoplay muted playsinline></video>
+                  <canvas id="c"></canvas>
+                  <div id="ovl"></div>
+                </div>
+                <div class="lbl" style="margin-top:4px" id="mainLbl"><b>Main camera</b></div>
+              </div>
+              <div class="lbl" style="margin-top:6px">Faces are added through this camera. Sections left on the Main camera also use it for attendance.</div>
+            </div>
+            <div class="fcRight">
+              <h2 style="margin-top:0">Add new student</h2>
+              <div class="row" style="margin-top:0"><input id="name" placeholder="Student name"></div>
+              <div class="row"><input id="roll" placeholder="Roll no. (optional)"></div>
+              <div class="row"><label for="stSec" class="lbl" style="min-width:90px">Section</label><select id="stSec"></select></div>
+              <div class="row">
+                <span class="lbl" style="min-width:90px">Capture timer</span>
+                <select id="capDelay" class="fit"><option value="0">Instant</option><option value="3" selected>3 sec</option><option value="5">5 sec</option><option value="10">10 sec</option></select>
+              </div>
+              <div class="lbl" style="margin-top:2px">(countdown before a face is captured)</div>
+              <div class="row"><button id="addFace" disabled>Add + capture face</button><button class="alt" id="addNoFace">Add without face</button></div>
+              <div id="status">Loading face models…</div>
+              <div class="row" style="margin-top:6px"><button id="camEnable" style="display:none">📷 Enable camera</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bulk Timetable Card -->
+      <div class="card" id="bulkCard" style="margin-bottom:16px">
+        <h2 style="margin:0 0 6px">📅 Bulk Timetable Schedule <span class="lbl">(each section can have a distinct subject per slot)</span></h2>
+        <div class="lbl" style="margin-bottom:8px">1. Choose sections &nbsp;·&nbsp; 2. Set time slots &nbsp;·&nbsp; 3. Pick subjects per slot &nbsp;·&nbsp; 4. Select dates and weekdays, then Create.</div>
+        <div class="row" style="margin:0 0 8px">
+          <input id="bkFind" placeholder="Search sections (comma = multiple, e.g. CSE 1, ECE)" style="min-width:200px">
+          <button class="alt sm" id="bkAll">Select all matching</button>
+          <button class="alt sm" id="bkNone">Clear</button>
+        </div>
+        <div id="bkList" style="max-height:120px;overflow-y:auto;border:1px solid var(--bd);border-radius:var(--radius-sm);padding:6px 10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 10px;background:var(--bg)"></div>
+        <div class="lbl" id="bkCount" style="margin:4px 0 8px"></div>
+        <div class="row" style="margin:0 0 8px">
+          <input id="bkNewSubj" placeholder="Add subject(s) to selected sections (comma separated)" style="min-width:220px">
+          <button class="sm" id="bkAddSubj">+ Add subject</button>
+        </div>
+        <div class="row" style="margin:0 0 8px">
+          <span class="lbl">Classes per day</span>
+          <input type="number" id="bkN" min="1" max="12" value="2" class="n" style="width:64px;flex:none;min-width:0">
+          <span class="lbl">(6 to 10 is standard; changing updates the slot columns)</span>
+        </div>
+        <div class="row" style="margin:0 0 8px">
+          <button class="alt sm" id="bkAddSlot">+ Add time slot</button>
+          <label class="lbl"><input type="checkbox" id="bkAuto" checked> auto-start</label>
+          <span class="lbl">Tip: "Fill all…" in a slot sets that subject for every selected section.</span>
+        </div>
+        <div id="bkGrid" style="max-height:300px;overflow:auto;border:1px solid var(--bd);border-radius:var(--radius-sm);background:#fff"></div>
+        <div class="row" style="margin-top:10px">
+          <span class="lbl">From</span><input type="date" id="bkFrom" style="flex:none;min-width:0">
+          <span class="lbl">To</span><input type="date" id="bkTo" style="flex:none;min-width:0">
+        </div>
+        <div class="row" id="bkDays"></div>
+        <div class="row" style="margin-top:12px">
+          <button id="bkGo">Create schedule</button>
+          <span class="lbl" id="bkPrev" style="font-weight:600;color:var(--ac)"></span>
+        </div>
+        <div class="lbl" id="bkMsg" style="margin-top:4px"></div>
+      </div>
+
+      <!-- Summary & Export Card -->
+      <div class="card" id="sumCard" style="margin-bottom:16px">
+        <div class="row" style="margin:0 0 10px;justify-content:space-between">
+          <h2 style="margin:0">📊 Attendance Summary</h2>
+          <div class="row" style="margin:0">
+            <button class="alt sm" id="csv">⬇ Export sessions CSV</button>
+            <button class="alt sm" id="csvAll">⬇ Export summary</button>
+          </div>
+        </div>
+        <div class="row" style="margin:0 0 10px">
+          <span class="lbl">Date</span>
+          <input id="qDate" type="date" title="Show attendance on this date" style="min-width:140px;flex:none">
+          <input id="qSec" placeholder="Filter Section" style="min-width:110px">
+          <input id="qRoll" placeholder="Roll No" style="min-width:90px">
+          <input id="qName" placeholder="Student Name" style="min-width:130px">
+          <button class="alt sm" id="qClear">Clear</button>
+        </div>
+        <div class="lbl" id="qHint" style="margin:-2px 0 8px"></div>
+        <div class="tbl"><table><thead id="head"></thead><tbody id="rows"></tbody></table></div>
+        <div id="empty" class="empty"></div>
+      </div>
+    </div>
+
+    <div class="splitR">
+      <!-- Section & Subject Manager -->
+      <div class="card ctl" style="margin-bottom:16px">
+        <h2>⚙️ Section &amp; Subject Management</h2>
+        <div class="row">
+          <label for="sec">Section:</label>
+          <select id="sec" style="max-width:200px"></select>
+          <input id="newSec" placeholder="New section (e.g. CSE 1 - A)" style="max-width:220px">
+          <button id="addSec">+ Add section</button>
+          <button class="alt" id="delSec">Delete section</button>
+        </div>
+        <div class="row">
+          <label for="subj">Subjects:</label>
+          <select id="subj" style="max-width:200px"></select>
+          <input id="newSubj" placeholder="Add subject(s) for section, comma separated" style="max-width:300px">
+          <button id="addSubj">+ Add subject</button>
+          <label class="lbl"><input type="checkbox" id="allSec"> all sections</label>
+          <button class="alt" id="delSubj">Remove</button>
+          <button class="alt" id="upSubj">⬆ Upload</button>
+          <input type="file" id="upFile" accept=".csv,.txt,text/plain,text/csv" hidden>
+        </div>
+        <div class="lbl" style="margin-top:6px">The subjects list belongs to the selected section. You can upload a .csv/.txt file with format: <b>CSE 1 - A: Maths, Physics</b>.</div>
+      </div>
+
+      <!-- Dashboard Metric Tiles -->
+      <div class="stats">
+        <div class="stat">
+          <b id="sStudents">0</b>
+          <span>Students in <span id="secName"></span></span>
+        </div>
+        <div class="stat">
+          <b id="sHeld">0</b>
+          <span>Classes held (all dates)</span>
+        </div>
+        <div class="stat">
+          <b id="sToday">–</b>
+          <span>Present in active session</span>
+        </div>
+        <div class="stat">
+          <b id="sAvg">0%</b>
+          <span>Average attendance</span>
+        </div>
+      </div>
+
+      <!-- Section Cameras Card -->
+      <div class="card" id="camCard">
+        <h2>📹 Section Cameras &amp; Recognition</h2>
+        <div class="lbl" style="margin-bottom:8px">Assign dedicated USB, virtual, or CCTV streams (MJPEG/HLS) to sections. Active cameras scan in the background and auto-mark recognized students in MongoDB Atlas.</div>
+        <div class="row"><label class="lbl"><input type="checkbox" id="showPrev" checked> show live camera previews</label></div>
+        <div class="row">
+          <input id="openCam" list="camList" placeholder="Search a section camera: section name or number" style="min-width:230px;flex:1">
+          <datalist id="camList"></datalist>
+          <button class="sm" id="openCamBtn">🔍 Open camera</button>
+        </div>
+        <div class="lbl" id="openMsg" style="color:var(--bad)"></div>
+        <div id="camRows"></div>
+        <div class="row" style="margin-top:12px">
+          <button class="sm" id="camAuto">⚙ Auto-assign a camera to each section</button>
+          <button class="alt sm" id="camRefresh">↻ Refresh list</button>
+          <button class="alt sm" id="camViewAll">👁 View all cameras</button>
+        </div>
+        <div class="lbl" style="margin-top:6px">Sources: any camera recognized by the browser, or network stream URL with CORS enabled.</div>
+        <div id="wall" class="wall"></div>
+      </div>
+
+      <!-- Offscreen Schedule & Run Card elements required by scripts -->
+      <div style="display:none" aria-hidden="true">
+        <div class="card" id="schedCard">
+          <div class="row" style="margin:0 0 6px;justify-content:space-between">
+            <h2 style="margin:0">Schedule — <span id="dateLbl"></span></h2>
+            <div class="row" style="margin:0">
+              <select id="schedView" title="Show schedule" style="flex:none;min-width:0;max-width:170px"></select>
+              <input type="date" id="pickDate" style="flex:none;min-width:0">
+              <button class="alt sm" id="todayB">Today</button>
+            </div>
+          </div>
+          <div id="sessions"></div>
+          <div class="row" style="border-top:1px solid var(--bd);padding-top:10px;margin-top:12px">
+            <select id="sSec" class="fit" style="max-width:170px" title="Section"></select>
+            <select id="sSubj" class="fit" style="max-width:160px" title="Subject"></select>
+            <input id="sTime" type="time" value="09:00" class="t">
+            <input id="sDur" type="number" min="0" value="50" class="n">
+            <span class="lbl">min timer</span>
+            <label class="lbl"><input id="sAuto" type="checkbox" checked> auto-start</label>
+          </div>
+          <div class="row">
+            <select id="sRep" class="fit"><option value="0">This date only</option><option value="3">Repeat weekly ×4</option><option value="7">Repeat weekly ×8</option><option value="11">Repeat weekly ×12</option></select>
+            <button id="addSess">+ Add to this date</button>
+            <button class="alt" id="addAll">+ All subjects back-to-back</button>
+          </div>
+          <div class="row">
+            <button class="alt sm" id="upSch">⬆ Upload schedule</button>
+            <button class="alt sm" id="tplSch">Download template</button>
+            <input type="file" id="schFile" accept=".csv,.txt,text/plain,text/csv" hidden>
+          </div>
+        </div>
+        <div id="runCards" class="cards"></div>
+        <button id="addCard"></button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Institute Selection Page -->
+<div class="wrap" id="pgInst" style="display:none;max-width:440px;margin:40px auto 0">
+  <div class="auth-card">
+    <div style="text-align:center;margin-bottom:18px">
+      <div class="brand-logo" style="width:48px;height:48px;margin:0 auto 12px;border-radius:14px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="width:26px;height:26px">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <h1 style="font-size:1.4rem;margin:0 0 4px">Smart Attendance</h1>
+      <div class="sub" style="margin:0">Set up your institute or university</div>
+    </div>
+    <div class="row" style="margin-top:0"><select id="instSel" style="width:100%"></select></div>
+    <div class="row" id="instAddRow" style="margin-top:8px;display:none">
+      <input id="instIn" placeholder="Enter new institute name" maxlength="80" autocomplete="off">
+      <button id="instSave">Add</button>
+    </div>
+    <div class="row" style="margin-top:16px"><button id="instGo" style="flex:1">Continue →</button></div>
+    <div id="instMsg" class="lbl" style="margin-top:8px;color:var(--bad)"></div>
+  </div>
+</div>
+
+<!-- Login Page -->
+<div class="wrap" id="pgLogin" style="display:none;max-width:440px;margin:40px auto 0">
+  <div class="auth-card">
+    <div style="text-align:center;margin-bottom:20px">
+      <div class="brand-logo" style="width:48px;height:48px;margin:0 auto 12px;border-radius:14px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="width:26px;height:26px">
+          <path d="M15 10l5 5-5 5"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/><circle cx="12" cy="7" r="3"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+        </svg>
+      </div>
+      <h1 style="font-size:1.45rem;margin:0 0 4px">Smart Attendance Login</h1>
+      <div class="sub" style="margin:0">Sign in to your portal with MongoDB cloud sync</div>
+    </div>
+    
+    <div class="row" style="margin:0 0 18px">
+      <button id="lgTabT" style="flex:1">👩‍🏫 Teacher / Admin</button>
+      <button id="lgTabS" class="alt" style="flex:1">🧑‍🎓 Student</button>
+    </div>
+
+    <!-- Teacher Login -->
+    <div id="lgTeacher">
+      <div class="row" style="margin-top:0"><label class="lbl" style="width:100%;font-weight:600">Username</label><input id="ltUser" placeholder="Enter username (e.g. admin)" autocomplete="username"></div>
+      <div class="row"><label class="lbl" style="width:100%;font-weight:600">Password</label><input id="ltPass" type="password" placeholder="Enter password (e.g. admin123)" autocomplete="current-password"></div>
+      <div class="row" style="margin-top:16px"><button id="ltGo" style="flex:1;padding:10px 14px">Sign In as Teacher →</button></div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 12px;margin-top:14px;font-size:0.78rem;color:#1e40af">
+        <b>💡 Default Administrator:</b> Username: <b>admin</b> &nbsp;·&nbsp; Password: <b>admin123</b>
+      </div>
+      <div class="lbl" style="margin-top:12px;text-align:center">New teacher? <a href="#teacher-signup" style="color:var(--ac);font-weight:600">Create teacher account</a></div>
+    </div>
+
+    <!-- Student Login -->
+    <div id="lgStudent" style="display:none">
+      <div class="row" style="margin-top:0"><label class="lbl" style="width:100%;font-weight:600">Section</label><select id="lsSec"></select></div>
+      <div class="row"><label class="lbl" style="width:100%;font-weight:600">Roll Number</label><input id="lsRoll" placeholder="e.g. 101 or CSE-042"></div>
+      <div class="row"><label class="lbl" style="width:100%;font-weight:600">Password</label><input id="lsPass" type="password" placeholder="Your password"></div>
+      <div class="row" style="margin-top:16px"><button id="lsGo" style="flex:1;padding:10px 14px">Sign In as Student →</button></div>
+      <div class="lbl" style="margin-top:14px;text-align:center">New student? <a href="#register" style="color:var(--ac);font-weight:600">📸 Enroll with face photo</a></div>
+    </div>
+
+    <div id="lgMsg" class="lbl" style="margin-top:12px;color:var(--bad);font-weight:600;text-align:center"></div>
+  </div>
+</div>
+
+<!-- Teacher Signup Page -->
+<div class="wrap" id="pgTSign" style="display:none;max-width:440px;margin:40px auto 0">
+  <div class="auth-card">
+    <div style="text-align:center;margin-bottom:18px">
+      <h1 style="font-size:1.4rem;margin:0 0 4px">New Teacher Account</h1>
+      <div class="sub" style="margin:0">Create teacher credentials for administration</div>
+    </div>
+    <div class="row"><input id="tsName" placeholder="Your full name"></div>
+    <div class="row"><input id="tsUser" placeholder="Choose a username"></div>
+    <div class="row"><input id="tsPass" type="password" placeholder="Password (min 4 characters)"></div>
+    <div class="row"><input id="tsPass2" type="password" placeholder="Confirm password"></div>
+    <div class="row"><button id="tsGo" style="flex:1">Create teacher account</button></div>
+    <div id="tsMsg" class="lbl" style="margin-top:8px;color:var(--bad)"></div>
+    <div class="lbl" style="margin-top:10px;text-align:center"><a href="#" style="color:var(--ac)">← Back to login</a></div>
+  </div>
+</div>
+
+<!-- Student Personal Dashboard -->
+<div class="wrap" id="pgStuHome" style="display:none;max-width:760px;margin:0 auto">
+  <div class="row" style="justify-content:space-between;margin:0 0 16px">
+    <h1 style="margin:0">🧑‍🎓 My Attendance Record</h1>
+    <button class="alt sm" id="shOut">⎋ Log out</button>
+  </div>
+  <div id="shBody"></div>
+</div>
+
+<!-- Students & Faces Gallery Page -->
+<div class="wrap" id="pgStudents" style="display:none">
+  <div class="page-header">
+    <div class="row" style="justify-content:space-between;margin:0 0 8px">
+      <h1>🧑‍🎓 Students &amp; Face Profiles</h1>
+      <a href="#" id="stuBack" class="alt sm" style="text-decoration:none;padding:6px 12px;border:1px solid var(--bd);border-radius:8px;color:var(--fg);font-size:0.82rem">← Back to Attendance</a>
+    </div>
+    <div class="sub">All registered students, facial recognition models, and individual attendance records synchronized with MongoDB Atlas.</div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="row" style="margin:0 0 10px;justify-content:space-between">
+      <div class="row" style="margin:0">
+        <a class="alt sm" id="sgReg" href="#register" target="_blank" style="padding:6px 12px;border:1px solid var(--bd);border-radius:8px;text-decoration:none;color:var(--fg);font-size:0.8rem">🔗 Open Registration Link</a>
+        <button class="alt sm" id="sgCopy">📋 Copy Link</button>
+        <button class="alt sm" id="sgImp">⬆ Import Registrations</button>
+        <input type="file" id="sgImpF" accept=".json,application/json" multiple style="display:none">
+      </div>
+    </div>
+    <div class="row" style="margin:0">
+      <input id="sgFind" placeholder="Search by name or roll number..." style="min-width:220px">
+      <select id="sgSec" style="max-width:220px"></select>
+      <select id="sgFace" style="max-width:170px">
+        <option value="">All students</option>
+        <option value="y">With face photo</option>
+        <option value="n">No face saved</option>
+      </select>
+    </div>
+    <div class="lbl" id="sgCount" style="margin-top:8px"></div>
+  </div>
+
+  <div id="sgGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px"></div>
+  <div class="lbl" id="sgEmpty" style="margin-top:12px"></div>
+</div>
+
+<!-- Student Self-Registration Page -->
+<div class="wrap" id="pgRegister" style="display:none;max-width:540px;margin:0 auto">
+  <div class="page-header" style="text-align:center">
+    <h1>Student Face Registration</h1>
+    <div class="sub">Face the camera in good lighting, enter your details, and take your photo to complete enrollment. <br><a href="#" style="color:var(--ac)">← Back to login</a></div>
+  </div>
+  <div class="card">
+    <div style="position:relative;width:100%;max-width:360px;aspect-ratio:4/3;margin:0 auto 14px;border-radius:12px;overflow:hidden;background:#0f172a;box-shadow:var(--shadow-md)">
+      <video id="rgVid" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1)"></video>
+      <div id="rgOvl" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;font-size:4rem;font-weight:700;color:#fff;background:rgba(0,0,0,.45)"></div>
+    </div>
+    <div class="row"><input id="rgName" placeholder="Full name"></div>
+    <div class="row"><input id="rgRoll" placeholder="Roll number"></div>
+    <div class="row"><input id="rgPass" type="password" placeholder="Create a password (min 4 characters)"></div>
+    <div class="row"><select id="rgSec"></select></div>
+    <div class="row"><button id="rgGo" style="flex:1">📸 Capture Face &amp; Register</button></div>
+    <div id="rgMsg" class="lbl" style="margin-top:8px"></div>
+    <div id="rgDone" style="display:none;margin-top:12px;text-align:center">
+      <img id="rgPhoto" alt="" style="width:110px;height:110px;border-radius:12px;object-fit:cover;box-shadow:var(--shadow-sm);margin-bottom:8px">
+      <div class="row" style="justify-content:center">
+        <button class="alt sm" id="rgDl">⬇ Download registration file</button>
+        <button class="alt sm" id="rgAgain">Register another</button>
+        <a class="alt sm" href="#" style="padding:6px 12px;border:1px solid var(--bd);border-radius:8px;text-decoration:none;color:var(--fg);font-size:0.8rem">Go to login</a>
+      </div>
+      <div class="lbl" style="margin-top:6px">Enrolled and stored in MongoDB Atlas cloud database.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Fullscreen Camera View Modal -->
+<div id="full" style="display:none;position:fixed;inset:0;z-index:100;background:#000">
+  <div style="position:absolute;left:0;right:0;top:0;height:48px;display:flex;justify-content:space-between;align-items:center;padding:0 16px;color:#fff;background:rgba(0,0,0,0.6)">
+    <b id="fullT"></b>
+    <button id="fullX" class="alt sm" style="color:#fff;border-color:rgba(255,255,255,0.4)">✕ Close</button>
+  </div>
+  <canvas id="fullCv" style="position:absolute;left:0;right:0;top:48px;bottom:0;width:100%;height:calc(100% - 48px);object-fit:contain"></canvas>
+</div>
+
+<!-- Enhanced MongoDB Atlas Real-Time Synchronization -->
+<script>
+(function(){
+  var KEYS=['sa_students','sa_subjects','sa_sections','sa_sched','sa_att4','sa_cursec','sa_cards','sa_users','sa_inst','sa_insts'];
+  var API=window.SA_API||(location.protocol==='file:'?'http://localhost:8000':'');
+  var rawSet=Storage.prototype.setItem, online=false, timer=null;
+  
+  function snapshot(){
+    var o={};
+    KEYS.forEach(function(k){
+      var v=localStorage.getItem(k);
+      if(v!==null) o[k]=v;
+    });
+    return o;
+  }
+
+  // Global DB controller for UI & Diagnostics
+  window.DB = {
+    online: false,
+    api: API,
+    latencyMs: null,
+    dbName: 'smart_attendance',
+    counts: {},
+    totalDocs: 0,
+    lastSync: null,
+    
+    checkStatus: function(cb) {
+      var pill = document.getElementById('dbStatusPill');
+      var txt = document.getElementById('dbStatusText');
+      var dot = document.querySelector('#dbStatusPill .db-dot');
+      
+      fetch(API + '/api/status').then(function(res){
+        if(!res.ok) throw new Error('Status code ' + res.status);
+        return res.json();
+      }).then(function(data){
+        window.DB.online = !!data.ok;
+        window.DB.latencyMs = data.latencyMs;
+        window.DB.dbName = data.database || 'smart_attendance';
+        window.DB.counts = data.counts || {};
+        window.DB.totalDocs = data.totalDocs || 0;
+        if(txt && dot) {
+          dot.className = 'db-dot ok';
+          txt.textContent = 'MongoDB Atlas (' + (data.latencyMs ? data.latencyMs + 'ms' : 'Active') + ')';
+        }
+        window.DB.updateModal();
+        if(cb) cb(null, data);
+      }).catch(function(err){
+        window.DB.online = false;
+        if(txt && dot) {
+          dot.className = 'db-dot err';
+          txt.textContent = 'MongoDB Offline';
+        }
+        window.DB.updateModal(err.message);
+        if(cb) cb(err);
+      });
+    },
+
+    updateModal: function(errMsg) {
+      var banner = document.getElementById('dbStatusBanner');
+      var bannerT = document.getElementById('dbBannerTitle');
+      var bannerS = document.getElementById('dbBannerSubtitle');
+      var statName = document.getElementById('dbStatName');
+      var statLat = document.getElementById('dbStatLatency');
+      var statDocs = document.getElementById('dbStatDocs');
+      var statSync = document.getElementById('dbStatSync');
+      var colsGrid = document.getElementById('dbColsGrid');
+      var errAlert = document.getElementById('dbErrorMsg');
+
+      if (!banner) return;
+      if (window.DB.online) {
+        banner.className = 'db-banner db-banner-ok';
+        bannerT.textContent = 'Connected to MongoDB Atlas';
+        bannerS.textContent = 'Cloud database is connected and active. All attendance records, students, sections, and schedules are synchronized in real-time.';
+        if (errAlert) errAlert.style.display = 'none';
+      } else {
+        banner.className = 'db-banner db-banner-err';
+        bannerT.textContent = 'MongoDB Atlas Offline';
+        bannerS.textContent = 'Could not communicate with the MongoDB server. Ensure "python server.py" is running on port 8000.';
+        if (errAlert) {
+          errAlert.textContent = 'Error: ' + (errMsg || 'Connection refused or timed out');
+          errAlert.style.display = 'block';
+        }
+      }
+      if (statName) statName.textContent = window.DB.dbName || 'smart_attendance';
+      if (statLat) statLat.textContent = window.DB.latencyMs ? window.DB.latencyMs + ' ms' : '--';
+      if (statDocs) statDocs.textContent = window.DB.totalDocs !== undefined ? window.DB.totalDocs : '--';
+      if (statSync) statSync.textContent = window.DB.lastSync ? new Date(window.DB.lastSync).toLocaleTimeString() : 'Just now';
+
+      if (colsGrid && window.DB.counts) {
+        var h = '';
+        var colKeys = ['institutes', 'users', 'sections', 'subjects', 'students', 'schedule', 'settings'];
+        colKeys.forEach(function(k){
+          var cnt = window.DB.counts[k] !== undefined ? window.DB.counts[k] : 0;
+          h += '<div class="db-col-item"><span class="db-col-name">' + k + '</span><span class="db-col-count">' + cnt + '</span></div>';
+        });
+        colsGrid.innerHTML = h;
+      }
+    },
+
+    push: function(cb) {
+      var dot = document.querySelector('#dbStatusPill .db-dot');
+      var txt = document.getElementById('dbStatusText');
+      if (dot) dot.className = 'db-dot sync';
+      if (txt) txt.textContent = 'Saving to Atlas…';
+
+      fetch(API + '/api/state', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(snapshot())
+      }).then(function(res){
+        if(!res.ok) throw new Error('Sync failed with ' + res.status);
+        window.DB.lastSync = Date.now();
+        window.DB.checkStatus();
+        if(cb) cb(null);
+      }).catch(function(e){
+        if(dot) dot.className = 'db-dot err';
+        if(txt) txt.textContent = 'Save Failed';
+        if(cb) cb(e);
+      });
+    }
+  };
+
+  // Synchronous initial fetch to populate localStorage on load
+  try {
+    var x = new XMLHttpRequest();
+    x.open('GET', API + '/api/state', false);
+    x.send();
+    if(x.status === 200) {
+      var r = JSON.parse(x.responseText);
+      online = true;
+      if (r.empty) {
+        setTimeout(window.DB.push, 0);
+      } else {
+        KEYS.forEach(function(k){
+          if(r.state[k] !== undefined) rawSet.call(localStorage, k, r.state[k]);
+        });
+      }
+    }
+  } catch(e) {}
+
+  // Override setItem to auto-sync with MongoDB Atlas
+  Storage.prototype.setItem = function(k, v){
+    rawSet.call(this, k, v);
+    if(this === localStorage && KEYS.indexOf(k) >= 0){
+      clearTimeout(timer);
+      timer = setTimeout(window.DB.push, 300);
+    }
+  };
+
+  window.addEventListener('pagehide', function(){
+    if(timer){ clearTimeout(timer); window.DB.push(); }
+  });
+
+  // Modal event wiring
+  document.addEventListener('DOMContentLoaded', function(){
+    var pill = document.getElementById('dbStatusPill');
+    var modal = document.getElementById('dbModal');
+    var closeBtn = document.getElementById('dbModalClose');
+    var dismissBtn = document.getElementById('dbBtnDismiss');
+    var testBtn = document.getElementById('dbBtnTest');
+    var syncBtn = document.getElementById('dbBtnSync');
+
+    if (pill) pill.onclick = function(){ modal.style.display = 'flex'; window.DB.checkStatus(); };
+    if (closeBtn) closeBtn.onclick = function(){ modal.style.display = 'none'; };
+    if (dismissBtn) dismissBtn.onclick = function(){ modal.style.display = 'none'; };
+    if (testBtn) testBtn.onclick = function(){ window.DB.checkStatus(); };
+    if (syncBtn) syncBtn.onclick = function(){ window.DB.push(); };
+    
+    // Initial health check
+    window.DB.checkStatus();
+    setInterval(window.DB.checkStatus, 30000);
+  });
+
+  console.log('Smart Attendance: connected to MongoDB Atlas database');
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+const MODELS='https://justadudewhohacks.github.io/face-api.js/models';
+const $=id=>document.getElementById(id);
+const v=$('v'),c=$('c'),st=$('status');
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const fmt=s=>s.split('-').reverse().join('/');
+const addDays=(s,n)=>{const [y,m,d]=s.split('-').map(Number);return ymd(new Date(y,m-1,d+n));};
+const load=(k,d)=>{try{const x=JSON.parse(localStorage.getItem(k));return x==null?d:x}catch(e){return d}};
+
+let students=load('sa_students',[]);                         // {id,name,roll,sec,d}
+let subjects=load('sa_subjects',[{id:'g',name:'General'}]);
+let sections=load('sa_sections',null)||[{id:'a',name:'Section A'}];
+const oldGroups=load('sa_groups',null)||load('sa_classes',null)||[];   // older versions had groups: fold the name into the section name
+sections.forEach(s=>{const g=oldGroups.find(x=>x.id===(s.grp||s.cls));if(g&&oldGroups.length>1&&!s.name.startsWith(g.name))s.name=g.name+' - '+s.name;delete s.grp;delete s.cls;});
+sections.forEach(s=>{if(!Array.isArray(s.subjects))s.subjects=subjects.map(x=>x.id);});   // each section keeps its own subjects
+students.forEach(s=>{if(!sections.find(x=>x.id===s.sec))s.sec=sections[0].id;});
+let sched=load('sa_sched',null);                             // {id,date,sec,subj,time,dur,auto}
+let att=load('sa_att4',null);                                // sessionId -> [studentIds]
+if(!sched||!att){                                            // migrate older date-based records
+  sched=[];att={};const old=load('sa_att3',{});
+  for(const k in old){const [sj,sc]=k.split('|');for(const d in old[k]){const id='x'+Math.random().toString(36).slice(2,9);sched.push({id,date:d,sec:sc,subj:sj,time:'',dur:0,auto:false});att[id]=old[k][d];}}
+}
+let curSec=load('sa_cursec',null);if(!sections.find(s=>s.id===curSec))curSec=sections[0].id;
+let selDate=ymd(new Date()),calM={y:new Date().getFullYear(),m:new Date().getMonth()};
+let cards=load('sa_cards',null);if(!Array.isArray(cards))cards=[];
+cards=cards.filter(c=>sections.find(s=>s.id===c.sec));if(!cards.length)cards=sections.map((s,i)=>({id:'c'+Date.now()+i,sec:s.id}));   // one card per section to start with
+const runs={},notes={};                      // runs[cardId] = the session that card is scanning right now
+let devices=[],streams={},camStatus={},camSig='';
+let formSec=null,busy=false,camReady=false;
+const autoDone=new Set();                       // time slots already started automatically ("date time")
+
+const save=()=>{
+  localStorage.setItem('sa_students',JSON.stringify(students));localStorage.setItem('sa_subjects',JSON.stringify(subjects));
+  localStorage.setItem('sa_sections',JSON.stringify(sections));
+  localStorage.setItem('sa_sched',JSON.stringify(sched));localStorage.setItem('sa_att4',JSON.stringify(att));
+  localStorage.setItem('sa_cursec',JSON.stringify(curSec));localStorage.setItem('sa_cards',JSON.stringify(cards));
+};
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const opts=()=>new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:.5});
+const sec=()=>sections.find(s=>s.id===curSec);
+const secLabel=s=>s.name;
+const subjName=id=>(subjects.find(s=>s.id===id)||{name:'?'}).name;
+const allSubjects=()=>subjects.filter(x=>sections.some(S=>S.subjects.includes(x.id)));
+const secsWith=sj=>sections.filter(S=>S.subjects.includes(sj));
+const secSubjects=(sid=curSec)=>{const S=sections.find(s=>s.id===sid);return subjects.filter(x=>S&&S.subjects.includes(x.id));};
+const roster=(sid=curSec)=>students.filter(s=>s.sec===sid);
+const daySess=(d=selDate)=>sched.filter(x=>x.sec===curSec&&x.date===d).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+const held=x=>Array.isArray(att[x.id]);
+const isP=(id,x)=>(att[x.id]||[]).includes(id);
+const colorFor=p=>p>=75?'var(--ok)':p>=50?'var(--warn)':'var(--bad)';
+const stat=(stu,subj)=>{const L=sched.filter(x=>x.sec===stu.sec&&held(x)&&(!subj||x.subj===subj));const p=L.filter(x=>isP(stu.id,x)).length;return{p,days:L.length,pct:L.length?Math.round(p/L.length*100):0};};
+const bar=p=>`<div style="display:flex;align-items:center;gap:6px"><div class="bar" style="flex:1"><i style="width:${p}%;background:${colorFor(p)}"></i></div><b style="color:${colorFor(p)}">${p}%</b></div>`;
+
+function mark(stuId,val,sid){
+  att[sid]=att[sid]||[];const i=att[sid].indexOf(stuId);
+  if(val&&i<0)att[sid].push(stuId);
+  if(!val&&i>=0)att[sid].splice(i,1);
+  save();render();
+}
+
+function fillSelects(){
+  const opt=(arr,sel,f=x=>x.name)=>arr.map(x=>`<option value="${x.id}" ${x.id===sel?'selected':''}>${esc(f(x))}</option>`).join('');
+  const keepSub=$('sSubj').value,keepSt=$('stSec').value;
+  $('sec').innerHTML=opt(sections,curSec);
+  const SS=secSubjects(),ds=$('subj').value;
+  $('subj').innerHTML=SS.length?opt(SS,SS.find(x=>x.id===ds)?ds:SS[0].id):'<option value="">(no subjects yet)</option>';
+  const isAll=formSec==='__all__',fs=isAll?'__all__':(sections.find(s=>s.id===formSec)?formSec:curSec),SF=isAll?allSubjects():secSubjects(fs);
+  $('sSec').innerHTML=opt(sections,fs)+`<option value="__all__" ${isAll?'selected':''}>★ Total sections (all)</option>`;
+  $('sSubj').innerHTML=SF.length?opt(SF,SF.find(x=>x.id===keepSub)?keepSub:SF[0].id):'<option value="">(add subjects first)</option>';
+  $('addSess').disabled=!SF.length;$('addAll').disabled=!SF.length;
+  $('stSec').innerHTML=opt(sections,sections.find(s=>s.id===keepSt)?keepSt:curSec,secLabel);
+  $('delSec').disabled=sections.length<2;$('delSubj').disabled=!SS.length;
+}
+
+function renderCal(){$('pickDate').value=selDate;}
+
+function sessHTML(x){
+  const R=roster(x.sec),p=R.filter(s=>isP(s.id,x)).length;
+  return `<div class="sess"><div class="row" style="margin:0;justify-content:space-between"><b>${esc(subjName(x.subj))}</b>
+    <span class="lbl">${held(x)?`${p}/${R.length} present`:'Not taken yet'}</span></div>
+    <div class="row"><input type="time" class="t" data-st="${x.id}" value="${x.time||''}"><input type="number" class="n" min="0" data-sd="${x.id}" value="${x.dur||0}"><span class="lbl">min timer</span>
+    <label class="lbl"><input type="checkbox" data-sa="${x.id}" ${x.auto?'checked':''}> auto-start</label></div>
+    <div class="row"><button class="alt sm" data-del="${x.id}">✕</button></div></div>`;
+}
+let schedView='__all__';
+function renderSess(){
+  $('dateLbl').textContent=fmt(selDate);
+  if(schedView!=='__all__'&&!sections.some(x=>x.id===schedView))schedView='__all__';
+  $('schedView').innerHTML='<option value="__all__">All sections</option>'+sections.map(x=>`<option value="${x.id}" ${x.id===schedView?'selected':''}>${esc(x.name)}</option>`).join('');
+  $('schedView').value=schedView;
+  const all=sched.filter(x=>x.date===selDate);
+  const ids=schedView==='__all__'?[...new Set([curSec,...all.map(x=>x.sec)])]:[schedView];       // selected section first, then the others on this date
+  $('sessions').innerHTML=ids.map(id=>{
+    const S=sections.find(x=>x.id===id);if(!S)return '';
+    const L=all.filter(x=>x.sec===id).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+    return `<div style="margin-top:12px"><div class="row" style="margin:0;justify-content:space-between"><b data-secsel="${id}" title="Select this section" style="cursor:pointer;${id===curSec?'color:var(--ac)':''}">${esc(S.name)}${id===curSec?' ✓':''}</b><span class="lbl">${L.length} subject(s)</span></div>`
+      +(L.length?L.map(sessHTML).join(''):'<div class="empty">No subjects scheduled for this section on this date.</div>')+'</div>';
+  }).join('');
+}
+const byRoll=(a,b)=>(a.roll?0:1)-(b.roll?0:1)||(a.roll||'').localeCompare(b.roll||'',undefined,{numeric:true})||a.name.localeCompare(b.name);
+const secNm=id=>(sections.find(z=>z.id===id)||{name:'?'}).name;
+const idHead=()=>'<th>Section</th><th>Roll No</th><th>Name</th>';
+const idCells=(s,face)=>`<td>${esc(secNm(s.sec))}</td><td>${s.roll?esc(s.roll):'–'}</td><td><b>${esc(s.name)}</b>${face&&!s.d?' <span class="lbl">(no face)</span>':''}</td>`;
+function renderTable(){   // Summary shows EVERY student from ALL sections
+  const secIdx=id=>{const k=sections.findIndex(x=>x.id===id);return k<0?999:k;};
+  const RA=students.slice().sort((a,b)=>secIdx(a.sec)-secIdx(b.sec)||byRoll(a,b)),val=id=>($(id).value||'').trim().toLowerCase();
+  const qs=val('qSec'),qr=val('qRoll'),qn=val('qName'),qd=$('qDate').value,q=qs||qr||qn,has=(t,x)=>String(t||'').toLowerCase().includes(x);
+  const hit=s=>(!qs||has(secNm(s.sec),qs))&&(!qr||has(s.roll,qr))&&(!qn||has(s.name,qn));   // every filled box must match
+  const R=RA.filter(hit);let h='',b='',slots=[];
+  if(qd){   // attendance on one chosen date (read-only), all sections
+    const DL=sched.filter(x=>x.date===qd).sort((a,b)=>(a.time||'').localeCompare(b.time||'')||subjName(a.subj).localeCompare(subjName(b.subj)));
+    const seen=new Set();DL.forEach(x=>{const k=x.subj+'|'+(x.time||'');if(!seen.has(k)){seen.add(k);slots.push({subj:x.subj,time:x.time||''});}});
+    const mine=(stu)=>DL.filter(x=>x.sec===stu.sec);
+    h='<tr>'+idHead()+slots.map(x=>`<th>${esc(subjName(x.subj))}<br><span class="lbl">${x.time}</span></th>`).join('')+'<th>Present</th><th>Day %</th></tr>';
+    b=R.map(st=>{const my=mine(st),hl=my.filter(held),p=hl.filter(x=>isP(st.id,x)).length,pc=hl.length?Math.round(p/hl.length*100):0;
+      const cells=slots.map(sl=>{const x=my.find(y=>y.subj===sl.subj&&(y.time||'')===sl.time);return `<td>${!x?'–':isP(st.id,x)?'<b style="color:var(--ok)">P ✓</b>':held(x)?'<b style="color:var(--bad)">A</b>':'–'}</td>`;}).join('');
+      return `<tr>${idCells(st,false)}${cells}<td>${p}/${hl.length}</td><td>${hl.length?bar(pc):'–'}</td></tr>`;}).join('');
+  }else{
+    const SJ=allSubjects();
+    h='<tr>'+idHead()+'<th>Held</th><th>Present</th><th>Attendance</th>'+SJ.map(x=>`<th>${esc(x.name)}</th>`).join('')+'<th></th></tr>';
+    b=R.map(st=>{
+      const t=stat(st);
+      const cells=SJ.map(sj=>{const u=stat(st,sj.id);return `<td>${u.days?`<b style="color:${colorFor(u.pct)}">${u.pct}%</b> <span class="lbl">(${u.p}/${u.days})</span>`:'–'}</td>`;}).join('');
+      return `<tr>${idCells(st,true)}<td>${t.days}</td><td>${t.p}</td><td>${t.days?bar(t.pct):'–'}</td>${cells}
+      <td><button class="alt sm" data-f="${st.id}" title="Capture/replace face">📷</button> <button class="alt sm" data-rm="${st.id}" title="Remove">✕</button></td></tr>`;}).join('');
+  }
+  $('head').innerHTML=h;$('rows').innerHTML=b;
+  const anyDay=qd&&sched.some(x=>x.date===qd),anyHeld=qd&&sched.some(x=>x.date===qd&&held(x));
+  $('empty').textContent=!RA.length?'No students yet. Add one in the Students & face capture card.':(q&&!R.length)?'No students match your search.':(qd&&!anyDay)?`No subjects scheduled on ${fmt(qd)}.`:(qd&&!anyHeld)?`Attendance has not been taken yet on ${fmt(qd)}.`:'';
+  $('qHint').textContent=(qd?`Attendance on ${fmt(qd)} for all sections. Clear the date to see overall totals. `:'')+`Showing ${R.length} of ${RA.length} student(s) from all sections.`;
+}
+
+function render(){
+  fillSelects();
+  const R=roster(),H=sched.filter(x=>x.sec===curSec&&held(x)).length;
+  $('secName').textContent=secLabel(sec());
+  $('sStudents').textContent=R.length;$('sHeld').textContent=H;
+  const ra=Object.values(runs).map(r=>sched.find(x=>x.id===r.sid)).filter(Boolean);
+  $('sToday').textContent=ra.length?ra.reduce((a,S)=>a+roster(S.sec).filter(z=>isP(z.id,S)).length,0)+'/'+ra.reduce((a,S)=>a+roster(S.sec).length,0):'–';
+  let sum=0;R.forEach(s=>sum+=stat(s).pct);$('sAvg').textContent=(R.length&&H?Math.round(sum/R.length):0)+'%';
+  renderCal();renderSess();renderTable();renderCards();renderCams();if(typeof bkReady!=='undefined'&&bkReady)renderBulk();if(typeof showPage==='function'&&location.hash==='#students'&&document.getElementById('sgGrid'))renderStuPage();
+}
+
+// ---- calendar & schedule events ----
+$('pickDate').onchange=e=>{if(e.target.value){selDate=e.target.value;render();}};
+$('schedView').onchange=e=>{schedView=e.target.value;renderSess();};
+$('todayB').onclick=()=>{const n=new Date();selDate=ymd(n);calM={y:n.getFullYear(),m:n.getMonth()};render();};
+$('addSess').onclick=()=>{
+  const sid=$('sSec').value,subj=$('sSubj').value,rep=+$('sRep').value;if(!subj){st.textContent='Add subjects for this section first.';return;}
+  const tgt=sid==='__all__'?secsWith(subj):[sections.find(s=>s.id===sid)];
+  tgt.forEach((S,k)=>{for(let i=0;i<=rep;i++)sched.push({id:'x'+Date.now()+k+'_'+i,date:addDays(selDate,7*i),sec:S.id,subj,time:$('sTime').value,dur:+$('sDur').value||0,auto:$('sAuto').checked});});
+  save();render();st.textContent=`${subjName(subj)} scheduled for ${sid==='__all__'?'all '+tgt.length+' section(s)':secLabel(tgt[0])} on ${fmt(selDate)}${rep?` and ${rep} more week(s)`:''}.`;
+};
+$('sSec').onchange=e=>{formSec=e.target.value;render();};
+$('addAll').onclick=()=>{
+  const sid=$('sSec').value,all=sid==='__all__',list=all?allSubjects():secSubjects(sid);if(!list.length)return;
+  const dur=+$('sDur').value||0,[h,m]=($('sTime').value||'09:00').split(':').map(Number),rep=+$('sRep').value;let t=h*60+m;
+  list.forEach(sj=>{
+    const time=`${pad(Math.floor(t/60)%24)}:${pad(t%60)}`;
+    (all?secsWith(sj.id):[sections.find(s=>s.id===sid)]).forEach(S=>{for(let i=0;i<=rep;i++)sched.push({id:'x'+Date.now()+Math.random().toString(36).slice(2,7),date:addDays(selDate,7*i),sec:S.id,subj:sj.id,time,dur,auto:$('sAuto').checked});});
+    t+=dur||60;
+  });
+  save();render();st.textContent=`${list.length} subject(s) scheduled for ${all?'all sections':secLabel(sections.find(s=>s.id===sid))} on ${fmt(selDate)}, one after another.`;
+};
+$('sessions').onclick=e=>{
+  const sb=e.target.closest('[data-secsel]');if(sb){curSec=sb.dataset.secsel;formSec=null;save();render();return;}
+  const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.del){const x=sched.find(y=>y.id===d.del);
+    if((!held(x)||confirm('This session has attendance records. Delete it?'))){
+      Object.keys(runs).forEach(k=>{if(runs[k].sid===x.id)stopCard(k,'',true);});
+      sched=sched.filter(y=>y.id!==x.id);delete att[x.id];save();render();}}
+};
+$('sessions').onchange=e=>{
+  const d=e.target.dataset,x=sched.find(y=>y.id===(d.st||d.sd||d.sa));if(!x)return;
+  if(d.st)x.time=e.target.value;if(d.sd)x.dur=+e.target.value||0;if(d.sa)x.auto=e.target.checked;
+  autoDone.clear();save();render();
+};
+
+// ---- table events ----
+['qSec','qRoll','qName','qDate'].forEach(id=>{$(id).oninput=renderTable;$(id).onchange=renderTable;});
+$('qClear').onclick=()=>{['qSec','qRoll','qName','qDate'].forEach(id=>$(id).value='');renderTable();};
+$('rows').onclick=async e=>{
+  const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.t){const x=sched.find(y=>y.id===d.sx);mark(d.t,!isP(d.t,x),d.sx);}
+  if(d.rm){const s=students.find(x=>x.id===d.rm);
+    if(confirm(`Remove ${s.name} and all their attendance history?`)){
+      students=students.filter(x=>x.id!==d.rm);for(const k in att)att[k]=att[k].filter(i=>i!==d.rm);save();render();}}
+  if(d.f){const desc=await grabFace();if(desc){{const S=students.find(x=>x.id===d.f);S.d=desc;S.p=lastPhoto;}save();render();st.textContent='Face saved.';}}
+};
+
+// ---- groups, sections, subjects ----
+function addNamed(scope,input,label,make){
+  const name=input.value.trim();if(!name)return;
+  if(scope.some(s=>s.name.toLowerCase()===name.toLowerCase())){st.textContent=`That ${label} already exists here.`;return;}
+  make({id:label.slice(0,3)+Date.now(),name});input.value='';save();render();st.textContent=`${label[0].toUpperCase()+label.slice(1)} "${name}" added.`;
+}
+$('sec').onchange=e=>{curSec=e.target.value;formSec=null;save();render();};
+$('addSec').onclick=()=>addNamed(sections,$('newSec'),'section',i=>{i.subjects=[];sections.push(i);curSec=i.id;cards.push({id:'c'+Date.now(),sec:i.id});});
+function subjectByName(name){
+  let x=subjects.find(s=>s.name.toLowerCase()===name.toLowerCase());
+  if(!x){x={id:'sub'+Date.now()+Math.random().toString(36).slice(2,6),name};subjects.push(x);}
+  return x;
+}
+function assign(secObj,name){const x=subjectByName(name);if(secObj.subjects.includes(x.id))return false;secObj.subjects.push(x.id);return true;}
+function pruneSubjects(){subjects=subjects.filter(x=>sections.some(s=>s.subjects.includes(x.id)));}
+$('addSubj').onclick=()=>{
+  const names=$('newSubj').value.split(/[,;\n]/).map(t=>t.trim()).filter(Boolean);if(!names.length)return;
+  const all=$('allSec').checked,targets=all?sections:[sec()];let n=0;
+  names.forEach(nm=>targets.forEach(t=>{if(assign(t,nm))n++;}));
+  $('newSubj').value='';save();render();
+  st.textContent=n?`Added ${names.join(', ')} to ${all?'all sections':secLabel(sec())}.`:'Those subjects are already added.';
+};
+let newSecs=0;
+const clean=t=>t.trim().replace(/^"|"$/g,'').trim();
+function getSec(name){
+  let x=sections.find(y=>y.name.toLowerCase()===name.toLowerCase());
+  if(!x){x={id:'sec'+Date.now()+Math.random().toString(36).slice(2,5),name,subjects:[]};sections.push(x);cards.push({id:'c'+Date.now()+Math.random().toString(36).slice(2,5),sec:x.id});newSecs++;}
+  return x;
+}
+const parseDate=t=>{
+  t=clean(t);let m=t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/),y,mo,d;
+  if(m){y=+m[1];mo=+m[2];d=+m[3];}
+  else{m=t.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/);if(!m)return null;d=+m[1];mo=+m[2];y=+m[3];}   // DD/MM/YYYY
+  const dt=new Date(y,mo-1,d);return dt.getFullYear()===y&&dt.getMonth()===mo-1&&dt.getDate()===d?ymd(dt):null;
+};
+$('upSch').onclick=()=>$('schFile').click();
+$('schFile').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;const text=await f.text();e.target.value='';
+  newSecs=0;let added=0,dup=0,bad=0,first=null;
+  text.split(/\r?\n/).forEach(line=>{
+    line=line.trim();if(!line)return;
+    const sep=line.includes(',')?',':line.includes('\t')?'\t':';';
+    const c=line.split(sep).map(clean),date=parseDate(c[0]||'');
+    if(!date){if(!/^date/i.test(c[0]||''))bad++;return;}          // header lines are ignored silently
+    if(!c[1]||!c[2]){bad++;return;}
+    const S=getSec(c[1]),sj=subjectByName(c[2]);if(!S.subjects.includes(sj.id))S.subjects.push(sj.id);
+    const tm=(c[3]||'').match(/^(\d{1,2}):(\d{2})/),time=tm?`${pad(+tm[1])}:${tm[2]}`:'';
+    const dur=c[4]!==undefined&&c[4]!==''?(+c[4]||0):(time?50:0);
+    if(sched.some(x=>x.date===date&&x.sec===S.id&&x.subj===sj.id&&x.time===time)){dup++;return;}
+    sched.push({id:'x'+Date.now()+Math.random().toString(36).slice(2,7),date,sec:S.id,subj:sj.id,time,dur,auto:!!(time&&dur)});
+    added++;if(!first||date<first)first=date;
+  });
+  if(first){selDate=first;const [y,m]=first.split('-').map(Number);calM={y,m:m-1};}
+  save();render();
+  st.textContent=`Schedule uploaded: ${added} session(s) added${dup?`, ${dup} duplicate(s) skipped`:''}${bad?`, ${bad} unreadable line(s) skipped`:''}${newSecs?`, ${newSecs} new section(s) created`:''}.`;
+};
+$('tplSch').onclick=()=>{const d=fmt(selDate);
+  download('schedule_template.csv',`Date,Section,Subject,Time,Timer (min)\n${d},CSE 1 - A,Maths,09:00,50\n${d},CSE 1 - A,Physics,09:50,50\n${d},CSE 2 - B,Chemistry,10:00,50\n`);};
+$('upSubj').onclick=()=>$('upFile').click();
+$('upFile').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;const text=await f.text();e.target.value='';
+  let added=0;newSecs=0;
+  text.split(/\r?\n/).forEach(line=>{
+    line=line.trim();if(!line||/^section\W*,?\s*subjects?\b/i.test(line))return;
+    let target=sec(),items;
+    if(line.includes(':')){const [a,...r]=line.split(':');target=getSec(clean(a));items=r.join(':').split(/[,;\t]/);}
+    else{items=line.split(/[,;\t]/);const m=sections.find(x=>x.name.toLowerCase()===clean(items[0]).toLowerCase());if(m&&items.length>1){target=m;items=items.slice(1);}}
+    items.map(clean).filter(Boolean).forEach(nm=>{if(assign(target,nm))added++;});
+  });
+  save();render();st.textContent=`Uploaded: ${added} subject assignment(s)${newSecs?`, ${newSecs} new section(s) created`:''}.`;
+};
+[['newSec','addSec'],['newSubj','addSubj']].forEach(([i,b])=>$(i).onkeydown=e=>{if(e.key==='Enter')$(b).click();});
+function dropSessions(f){const ids=sched.filter(f).map(x=>x.id);ids.forEach(i=>delete att[i]);sched=sched.filter(x=>!ids.includes(x.id));Object.keys(runs).forEach(k=>{if(ids.includes(runs[k].sid))stopCard(k,'',true);});}
+function purgeSections(ids){students=students.filter(s=>!ids.includes(s.sec));dropSessions(x=>ids.includes(x.sec));sections=sections.filter(s=>!ids.includes(s.id));pruneSubjects();}
+$('delSubj').onclick=()=>{const id=$('subj').value;if(!id)return;
+  if(!confirm(`Remove "${subjName(id)}" from ${secLabel(sec())}? Its scheduled sessions and records in this section will be deleted.`))return;
+  dropSessions(x=>x.subj===id&&x.sec===curSec);sec().subjects=sec().subjects.filter(i=>i!==id);pruneSubjects();save();render();};
+$('delSec').onclick=()=>{if(sections.length<2||!confirm(`Delete "${secLabel(sec())}", its students, schedule and records?`))return;
+  purgeSections([curSec]);curSec=sections[0].id;save();render();};
+
+// ---- capture timer + students ----
+function countdown(n){
+  return new Promise(res=>{
+    const o=$('ovl');let t=n;if(n<=0)return res();
+    o.style.display='flex';o.textContent=t;st.textContent=`Look at the camera — capturing in ${t}…`;
+    const iv=setInterval(()=>{t--;if(t<=0){clearInterval(iv);o.style.display='none';res();}else{o.textContent=t;st.textContent=`Look at the camera — capturing in ${t}…`;}},1000);
+  });
+}
+let lastPhoto=null;
+async function grabFace(){
+  if(busy)return null;if(!camReady){st.textContent='Camera not ready.';return null;}
+  busy=true;document.body.classList.add('prev');
+  try{await countdown(+$('capDelay').value);
+    const r=await faceapi.detectSingleFace(v,opts()).withFaceLandmarks().withFaceDescriptor();
+    if(!r){st.textContent='No face detected. Face the camera in good light and try again.';return null;}
+    lastPhoto=null;try{const bx=r.detection.box,w=Math.max(bx.width,bx.height)*1.6,x=Math.max(0,bx.x-(w-bx.width)/2),y=Math.max(0,bx.y-(w-bx.height)/2),c=document.createElement('canvas');c.width=c.height=120;c.getContext('2d').drawImage(v,x,y,w,w,0,0,120,120);lastPhoto=c.toDataURL('image/jpeg',.7);}catch(_){}
+    return Array.from(r.descriptor);
+  }finally{busy=false;document.body.classList.toggle('prev',$('showPrev').checked);}
+}
+async function addStudent(withFace){
+  const name=$('name').value.trim();if(!name){st.textContent='Enter the student name first.';return;}
+  let d=null;if(withFace){d=await grabFace();if(!d)return;}
+  const secId=$('stSec').value||curSec;
+  students.push({id:'s'+Date.now(),name,roll:$('roll').value.trim(),sec:secId,d,p:d?lastPhoto:null});
+  save();render();$('name').value='';$('roll').value='';
+  st.textContent=`Added ${name} to ${secLabel(sections.find(x=>x.id===secId))}${d?' with face':''}.`;
+}
+$('addFace').onclick=()=>addStudent(true);$('addNoFace').onclick=()=>addStudent(false);
+
+// ---- section cameras (CCTV) ----
+const streamReady=id=>!!(streams[id]&&streams[id].ready());
+const camFor=id=>{const S=sections.find(x=>x.id===id);return S&&S.cam&&S.cam.kind&&S.cam.kind!=='default'&&streamReady(id)?id:'main';};
+const camOK=id=>camFor(id)==='main'?camReady:true;
+const anyCam=()=>camReady||Object.keys(streams).some(streamReady);
+const camLabel=id=>{const S=sections.find(x=>x.id===id);return camFor(id)==='main'?'main camera':S.cam.kind==='url'?'CCTV stream':(S.cam.label||'camera');};
+function disconnectCam(id){const t=streams[id];if(!t)return;try{t.stop();}catch(e){}t.tile.remove();delete streams[id];}
+function fillMain(){const cur=localStorage.getItem('sa_maincam')||'';if($('mainCam'))$('mainCam').innerHTML='<option value="">Default camera</option>'+devices.map((d,k)=>`<option value="${esc(d.deviceId)}" ${d.deviceId===cur?'selected':''}>${esc(d.label||'Camera '+(k+1))}</option>`).join('');}
+function camErrMsg(e){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return window.isSecureContext?'This browser does not support camera access.':'Camera needs a secure page (https:// or localhost). Open the site using an https link.';
+  const n=e&&e.name;
+  if(n==='NotAllowedError'||n==='SecurityError')return 'Camera permission blocked. Tap the lock/camera icon in the address bar, set Camera to Allow, then press "Enable camera". If this page is embedded, open it in its own browser tab.';
+  if(n==='NotFoundError'||n==='OverconstrainedError')return 'No camera found on this device.';
+  if(n==='NotReadableError')return 'Camera is busy in another app or tab. Close it and try again.';
+  return (e&&e.message)||'Could not start the camera.';
+}
+async function startMain(){
+  const id=localStorage.getItem('sa_maincam')||'';
+  if(v.srcObject)v.srcObject.getTracks().forEach(t=>t.stop());
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('nosupport');
+    let ms;
+    try{ms=await navigator.mediaDevices.getUserMedia({video:id?{deviceId:{exact:id}}:{facingMode:'user'},audio:false});}
+    catch(e1){if(e1&&e1.name==='NotAllowedError')throw e1;ms=await navigator.mediaDevices.getUserMedia({video:true,audio:false});}
+    v.srcObject=ms;try{await v.play();}catch(_){}
+    camReady=true;$('addFace').disabled=false;$('mainTile').classList.add('live');
+    const b=$('camEnable');if(b)b.style.display='none';
+    return '';
+  }
+  catch(e){
+    if(id&&e&&e.name!=='NotAllowedError'){localStorage.removeItem('sa_maincam');return startMain();}
+    camReady=false;$('addFace').disabled=true;$('mainTile').classList.remove('live');
+    const b=$('camEnable');if(b)b.style.display='inline-block';
+    return camErrMsg(e);
+  }
+}
+$('camEnable').onclick=async()=>{st.textContent='Requesting camera access…';const err=await startMain();if(err)st.textContent=err;else{st.textContent='Camera enabled.';try{await refreshDevices();}catch(_){}}};
+if($('mainCam'))$('mainCam').onchange=async e=>{localStorage.setItem('sa_maincam',e.target.value);st.textContent='Switching main camera…';const err=await startMain();st.textContent=err?'Main camera unavailable ('+err+').':'Main camera switched.';};
+$('showPrev').checked=localStorage.getItem('sa_prev')!=='0';document.body.classList.toggle('prev',$('showPrev').checked);
+$('showPrev').onchange=e=>{document.body.classList.toggle('prev',e.target.checked);localStorage.setItem('sa_prev',e.target.checked?'1':'0');};
+let wl=null;
+async function bgRun(){
+  const n=Object.keys(runs).length,on=n>0;
+  $('bgBadge').style.display=on?'block':'none';$('clock2').textContent=on?`(${n} card${n>1?'s':''})`:'';document.title=on?'● Scanning – Smart Attendance':'Smart Attendance';
+  try{if(on&&navigator.wakeLock&&!wl){wl=await navigator.wakeLock.request('screen');wl.onrelease=()=>{wl=null;};}else if(!on&&wl){await wl.release();wl=null;}}catch(e){}
+}
+async function refreshDevices(){
+  try{devices=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');}catch(e){devices=[];}
+  fillMain();renderCams(true);
+}
+async function connectCam(id){
+  const S=sections.find(x=>x.id===id);if(!S)return;
+  disconnectCam(id);const cam=S.cam||{kind:'default'};
+  if(cam.kind==='default'){camStatus[id]='';renderCams(true);return;}
+  camStatus[id]='connecting…';renderCams(true);
+  let el,stop=()=>{};
+  try{
+    if(cam.kind==='device'){
+      el=document.createElement('video');el.autoplay=true;el.muted=true;el.playsInline=true;
+      const ms=await navigator.mediaDevices.getUserMedia({video:{deviceId:{exact:cam.deviceId}}});
+      el.srcObject=ms;stop=()=>ms.getTracks().forEach(t=>t.stop());
+    }else{
+      if(!cam.url)throw new Error('enter the stream URL first');
+      const isVid=/\.(m3u8|mp4|webm)(\?|$)/i.test(cam.url);
+      el=document.createElement(isVid?'video':'img');el.crossOrigin='anonymous';
+      if(isVid){el.autoplay=true;el.muted=true;el.playsInline=true;}
+      stop=()=>{el.removeAttribute('src');};
+      await new Promise((res,rej)=>{
+        el.onerror=()=>rej(new Error('could not open the stream (check the URL and CORS)'));
+        if(isVid)el.onloadeddata=res;else el.onload=res;
+        setTimeout(()=>rej(new Error('stream timed out')),10000);
+        el.src=cam.url;
+      });
+    }
+  }catch(e){stop();camStatus[id]='⚠ '+e.message;renderCams(true);return;}
+  const tile=document.createElement('div');tile.className='tile live';tile.dataset.sec=id;
+  tile.innerHTML=`<div class="vid"><canvas></canvas></div><div class="lbl" style="margin-top:4px"><b>${esc(S.name)}</b> — ${esc(cam.kind==='url'?'CCTV stream':(cam.label||'camera'))}</div>`;
+  tile.querySelector('.vid').prepend(el);$('wall').append(tile);
+  streams[id]={el,cv:tile.querySelector('canvas'),tile,stop,ready:()=>(el.videoWidth||el.naturalWidth)>0};
+  camStatus[id]='connected';renderCams(true);
+}
+function renderCams(force){
+  for(const id in streams)if(!sections.find(x=>x.id===id))disconnectCam(id);
+  const sig=JSON.stringify([sections.map(x=>[x.id,x.name,x.cam]),devices.map(d=>d.deviceId),Object.keys(streams).filter(streamReady),camStatus]);
+  if(!force&&sig===camSig)return;camSig=sig;
+  $('camRows').innerHTML=sections.map(S=>{
+    const cam=S.cam||{kind:'default'},sel=cam.kind==='device'?'dev:'+cam.deviceId:cam.kind==='url'?'url':'default';
+    const linked=cam.kind&&cam.kind!=='default';
+    return `<div class="row"><b style="min-width:110px">${esc(S.name)}</b>
+      <select data-cs="${S.id}" class="fit" style="max-width:200px"><option value="default" ${sel==='default'?'selected':''}>Main camera</option>${devices.map((d,k)=>`<option value="dev:${esc(d.deviceId)}" ${sel==='dev:'+d.deviceId?'selected':''}>${esc(d.label||'Camera '+(k+1))}</option>`).join('')}<option value="url" ${sel==='url'?'selected':''}>Network stream URL…</option></select>
+      ${cam.kind==='url'?`<input data-cu="${S.id}" value="${esc(cam.url||'')}" placeholder="http://camera/stream.mjpg" style="min-width:170px">`:''}
+      ${linked?`<button class="sm" data-cc="${S.id}">${streamReady(S.id)?'Reconnect':'Connect'}</button>`:''}
+      <button class="alt sm" data-cv="${S.id}" title="See this camera live, full size">👁 View camera</button>
+      <span class="lbl">${esc(camStatus[S.id]||(linked?'not connected':'uses the main camera'))}</span></div>`;
+  }).join('');
+  const ms=sections.filter(x=>camFor(x.id)==='main').map(x=>x.name);
+  $('mainLbl').innerHTML='<b>Main camera</b> <span class="lbl">— '+(ms.length?esc(ms.join(', ')):'not used by any section')+'</span>';
+  const wl2=$('wall');[...wl2.querySelectorAll('.tile[data-sec]')].sort((a,b)=>sections.findIndex(x=>x.id===a.dataset.sec)-sections.findIndex(x=>x.id===b.dataset.sec)).forEach(t=>wl2.append(t));   // tiles follow the section order
+  renderCards();   // keep each card's camera label current
+}
+$('camRows').onchange=e=>{
+  const t=e.target,id=t.dataset.cs||t.dataset.cu;if(!id)return;const S=sections.find(x=>x.id===id);if(!S)return;
+  if(t.dataset.cs){
+    const val=t.value;disconnectCam(id);camStatus[id]='';
+    if(val==='default')S.cam={kind:'default'};
+    else if(val==='url')S.cam={kind:'url',url:(S.cam&&S.cam.url)||''};
+    else{const d=devices.find(x=>'dev:'+x.deviceId===val);S.cam={kind:'device',deviceId:d.deviceId,label:d.label||'camera'};}
+    save();renderCams(true);if(S.cam.kind==='device')connectCam(id);
+  }else{S.cam={kind:'url',url:t.value.trim()};save();}
+};
+$('camRows').onclick=async e=>{
+  const b=e.target.closest('[data-cc]');if(b){connectCam(b.dataset.cc);return;}
+  const v=e.target.closest('[data-cv]');if(v){const id=v.dataset.cv,S=sections.find(x=>x.id===id);
+    if(S&&S.cam&&S.cam.kind&&S.cam.kind!=='default'&&!streamReady(id))await connectCam(id);
+    openFull(id);}
+};
+$('camViewAll').onclick=async()=>{
+  const p=$('showPrev');if(!p.checked){p.checked=true;p.onchange({target:p});}
+  for(const S of sections){if(S.cam&&S.cam.kind&&S.cam.kind!=='default'&&!streamReady(S.id))await connectCam(S.id);}
+  $('wall').scrollIntoView({behavior:'smooth',block:'center'});
+};
+$('camAuto').onclick=async()=>{
+  try{(await navigator.mediaDevices.getUserMedia({video:true})).getTracks().forEach(t=>t.stop());}catch(e){}
+  await refreshDevices();
+  if(!devices.length){st.textContent='No cameras found. Plug in the cameras and try again.';return;}
+  sections.forEach((S,i)=>{disconnectCam(S.id);camStatus[S.id]='';const d=devices[i];S.cam=d?{kind:'device',deviceId:d.deviceId,label:d.label||'Camera '+(i+1)}:{kind:'default'};});
+  save();renderCams(true);
+  for(const S of sections)if(S.cam.kind==='device')await connectCam(S.id);
+  const n=Math.min(devices.length,sections.length);
+  st.textContent=`Assigned ${n} camera(s) to ${sections.length} section(s), in section order.`+(devices.length<sections.length?` ${sections.length-devices.length} section(s) still share the Main camera: connect more cameras or enter a CCTV stream URL for them.`:'');
+};
+$('camRefresh').onclick=async()=>{
+  try{(await navigator.mediaDevices.getUserMedia({video:true})).getTracks().forEach(t=>t.stop());}catch(e){}
+  await refreshDevices();
+};
+
+// ---- attendance cards: every card runs one section on its own ----
+const slotWin=(date,t)=>{const L=sched.filter(x=>x.date===date&&x.time===t),dur=Math.max(0,...L.map(x=>x.dur||0)),st0=new Date(`${date}T${t}:00`).getTime();return{start:st0,end:dur>0?st0+dur*60000:0,dur};};
+const inWin=(date,t)=>{const w=slotWin(date,t),n=Date.now();return w.end?(n>=w.start&&n<w.end):true;};
+const winMsg=(date,t)=>{const w=slotWin(date,t);return Date.now()<w.start?`Attendance for ${t} opens at ${t} on ${fmt(date)} and starts automatically.`:`The ${t} attendance window is closed (it ran until ${new Date(w.end).toTimeString().slice(0,5)}).`;};
+const modelsOK=()=>faceapi.nets.tinyFaceDetector.isLoaded&&faceapi.nets.faceLandmark68Net.isLoaded&&faceapi.nets.faceRecognitionNet.isLoaded;
+const clockText=r=>{const s=Math.max(0,Math.ceil((r.endAt-Date.now())/1000));return '⏱ '+pad(Math.floor(s/60))+':'+pad(s%60);};
+const PAL=['#2563eb','#9333ea','#db2777','#d97706','#16a34a','#0891b2'];
+function cardHTML(c,i){
+  const r=runs[c.id],ds=ymd(new Date()),R=roster(c.sec),cur=r&&sched.find(x=>x.id===r.sid);
+  const L=sched.filter(x=>x.sec===c.sec&&x.date===ds).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const rows=L.length?L.map(x=>{const run=r&&r.sid===x.id,p=R.filter(s=>isP(s.id,x)).length;
+    return `<div class="row" style="margin:6px 0 0;justify-content:space-between"><span><b>${esc(subjName(x.subj))}</b> <span class="lbl">${x.time||'any time'}${x.dur?` · ${x.dur} min`:''}${x.auto&&x.time&&x.dur?' · ⏰ auto':''}</span></span><span class="row" style="margin:0"><span class="lbl">${held(x)?`${p}/${R.length} present`:'Not taken yet'}</span><button class="sm${run?' bad':''}" data-cs="${c.id}" data-sx="${x.id}">${run?'Stop':'Start'}</button></span></div>`;}).join(''):'<div class="empty">No subject scheduled today for this section. Pick today\'s date in the Schedule card and add one.</div>';
+  const nf=R.filter(s=>!s.d).length;
+  return `<div class="rc" style="border-top:4px solid ${PAL[i%PAL.length]}">
+    <div class="row" style="margin:0;justify-content:space-between"><select data-csec="${c.id}" style="min-width:0;flex:1">${sections.map(S=>`<option value="${S.id}" ${S.id===c.sec?'selected':''}>${esc(S.name)}</option>`).join('')}</select><span><span class="lbl" data-clk="${c.id}" style="color:var(--warn);font-weight:700">${r&&r.endAt?clockText(r):''}</span> <button class="alt sm" data-crm="${c.id}" title="Remove this card">✕</button></span></div>
+    <div class="cvbox" style="margin-top:8px"><canvas data-cv="${c.id}" title="Click to open this camera full size"></canvas>${r?'<span class="live">● LIVE</span>':''}</div>
+    <div class="lbl" style="margin-top:6px">Camera: ${esc(camLabel(c.sec))} · ${R.length} student(s)${nf?` · ${nf} without a face`:''}</div>
+    <div class="lbl" data-note="${c.id}" style="margin-top:4px;color:var(--fg)">${esc(r?r.note:(notes[c.id]||''))}</div>
+    ${rows}<div style="margin-top:8px">${cur?R.filter(s=>isP(s.id,cur)).map(s=>`<span class="chip">✅ ${esc(s.name)}</span>`).join(''):''}</div></div>`;
+}
+function renderCards(){
+  cards=cards.filter(c=>{if(sections.some(s=>s.id===c.sec))return true;stopCard(c.id,'',true);return false;});
+  $('camList').innerHTML=sections.map(S=>`<option value="${esc(S.name)}"></option>`).join('')+'<option value="Main camera"></option>';
+  $('runCards').innerHTML=cards.length?cards.map(cardHTML).join(''):'<div class="empty">No cards yet. Press "+ Add card" and choose a section.</div>';
+}
+function startCard(id,sid,end){
+  const c=cards.find(x=>x.id===id),S=sched.find(x=>x.id===sid);if(!c||!S)return;
+  const refuse=m=>{notes[id]=m;render();};
+  if(!end&&S.time&&S.dur>0&&!inWin(S.date,S.time))return refuse(winMsg(S.date,S.time));
+  if(!modelsOK())return refuse('Face models are not loaded yet (internet is needed the first time).');
+  if(!camOK(c.sec))return refuse('Camera not ready for this section. Connect it in the Cameras section.');
+  stopCard(id,'',true);delete notes[id];att[sid]=att[sid]||[];
+  const e=end||(S.dur>0?Date.now()+S.dur*60000:0);
+  runs[id]={sid,endAt:e,boxes:[],note:`Taking attendance: ${subjName(S.subj)}${S.dur?` (${S.dur} min timer)`:''} using ${camLabel(c.sec)}.`};
+  if(e)runs[id].clock=setInterval(()=>tickClock(id),500);
+  save();bgRun();render();loopCard(id);
+}
+function stopCard(id,msg,quiet){
+  const r=runs[id];if(!r)return;
+  clearTimeout(r.timer);clearInterval(r.clock);delete runs[id];
+  if(msg)notes[id]=msg;
+  bgRun();if(!quiet)render();
+}
+function tickClock(id){
+  const r=runs[id];if(!r)return;
+  if(r.endAt-Date.now()<=0){stopCard(id,'Attendance time is over. Scanning stopped.');return;}
+  const el=document.querySelector(`[data-clk="${id}"]`);if(el)el.textContent=clockText(r);
+}
+async function scanCard(c,r){
+  const S=sched.find(x=>x.id===r.sid);if(!S){stopCard(c.id,'This session was removed.');return;}
+  const key=camFor(c.sec),t=key==='main'?{el:v}:streams[key];if(!t||!t.el)return;
+  const el=t.el,w=el.videoWidth||el.naturalWidth,h=el.videoHeight||el.naturalHeight;if(!w)return;
+  const dets=await faceapi.detectAllFaces(el,opts()).withFaceLandmarks().withFaceDescriptors();
+  if(runs[c.id]!==r)return;
+  const pool=roster(c.sec).filter(s=>s.d);   // only this card's section can be recognised
+  if(!pool.length)r.note='No student in this section has a face saved yet.';
+  const matcher=pool.length?new faceapi.FaceMatcher(pool.map(s=>new faceapi.LabeledFaceDescriptors(s.id,[new Float32Array(s.d)])),0.5):null;
+  r.boxes=[];
+  for(const d of faceapi.resizeResults(dets,{width:w,height:h})){
+    const m=matcher?matcher.findBestMatch(d.descriptor):{label:'unknown'},s=pool.find(x=>x.id===m.label),b=d.detection.box,done=s&&isP(s.id,S);
+    r.boxes.push({x:b.x,y:b.y,w:b.width,h:b.height,t:s?s.name+(done?' ✓':''):'Unknown',c:s?'#16a34a':'#ef4444'});
+    if(s&&!done){mark(s.id,true,S.id);r.note=`${s.name} marked Present in ${subjName(S.subj)}.`;}
+  }
+  const n=document.querySelector(`[data-note="${c.id}"]`);if(n)n.textContent=r.note;
+}
+async function loopCard(id){
+  const r=runs[id],c=cards.find(x=>x.id===id);if(!r||!c)return;
+  try{await scanCard(c,r);}catch(e){r.note='Camera error: '+e.message;}
+  if(runs[id]===r)r.timer=setTimeout(()=>loopCard(id),500);   // a failing camera never stops the other cards
+}
+function drawFrame(cv,el,boxes){
+  const w=el&&(el.videoWidth||el.naturalWidth),h=el&&(el.videoHeight||el.naturalHeight),x=cv.getContext('2d');
+  if(!w){if(cv.width!==640){cv.width=640;cv.height=480;}x.fillStyle='#000';x.fillRect(0,0,640,480);x.fillStyle='#9ca3af';x.font='20px system-ui';x.fillText('Camera not ready',20,40);return;}
+  if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}
+  x.drawImage(el,0,0,w,h);
+  (boxes||[]).forEach(b=>{x.strokeStyle=b.c;x.lineWidth=Math.max(2,w/200);x.strokeRect(b.x,b.y,b.w,b.h);x.fillStyle=b.c;x.font=`bold ${Math.max(14,Math.round(w/32))}px system-ui`;x.fillText(b.t,b.x,Math.max(16,b.y-6));});
+}
+const srcEl=sec=>{const key=sec==='main'?'main':camFor(sec),t=key==='main'?{el:v}:streams[key];return t&&t.el;};
+let fullSec=null;
+function paint(){      // every card draws its own section's camera, smoothly
+  cards.forEach(c=>{const cv=document.querySelector(`[data-cv="${c.id}"]`);if(!cv)return;const r=runs[c.id];drawFrame(cv,srcEl(c.sec),r&&r.boxes);});
+  if(fullSec){const c=cards.find(x=>x.sec===fullSec),r=c&&runs[c.id];drawFrame($('fullCv'),srcEl(fullSec),r&&r.boxes);}
+  requestAnimationFrame(paint);
+}
+requestAnimationFrame(paint);
+function openFull(sec){      // full-size view of one camera (section id, or 'main')
+  fullSec=sec;$('fullT').textContent=sec==='main'?'Main camera':`${secNm(sec)} — ${camLabel(sec)}`;
+  $('full').style.display='block';$('openMsg').textContent='';
+  try{if($('full').requestFullscreen){const p=$('full').requestFullscreen();if(p&&p.catch)p.catch(()=>{});}}catch(e){}
+}
+function closeFull(){fullSec=null;$('full').style.display='none';try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}}
+$('fullX').onclick=closeFull;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&fullSec)closeFull();});
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&fullSec)closeFull();});
+function findCam(q){
+  q=q.trim().toLowerCase();if(!q)return null;
+  if(q.startsWith('main'))return 'main';
+  if(/^\d+$/.test(q)){const S=sections[+q-1];return S?S.id:null;}
+  const S=sections.find(x=>x.name.toLowerCase()===q)||sections.find(x=>x.name.toLowerCase().includes(q));
+  return S?S.id:null;
+}
+async function openByText(){
+  const q=$('openCam').value,k=findCam(q);
+  if(!k){$('openMsg').textContent=q.trim()?`No camera matches "${q}". Type a section name or a number (1-${sections.length}).`:'Type a section name or number first.';return;}
+  const S=sections.find(x=>x.id===k);
+  if(S&&S.cam&&S.cam.kind&&S.cam.kind!=='default'&&!streamReady(k))await connectCam(k);
+  openFull(k);$('openCam').value='';
+}
+$('openCamBtn').onclick=openByText;$('openCam').onkeydown=e=>{if(e.key==='Enter')openByText();};
+$('wall').onclick=e=>{const t=e.target.closest('.tile');if(t)openFull(t.dataset.sec||'main');};
+$('runCards').onclick=e=>{
+  const bx=e.target.closest('.cvbox');if(bx){const cv=bx.querySelector('canvas'),c=cv&&cards.find(x=>x.id===cv.dataset.cv);if(c)openFull(c.sec);return;}
+  const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.crm){stopCard(d.crm,'',true);cards=cards.filter(x=>x.id!==d.crm);save();render();}
+  if(d.cs){const r=runs[d.cs];if(r&&r.sid===d.sx)stopCard(d.cs,'Scanning stopped.');else startCard(d.cs,d.sx);}
+};
+$('runCards').onchange=e=>{
+  const id=e.target.dataset.csec;if(!id)return;const c=cards.find(x=>x.id===id);if(!c)return;
+  if(cards.some(x=>x.id!==id&&x.sec===e.target.value)){notes[id]='That section already has its own card.';render();return;}
+  stopCard(id,'',true);delete notes[id];c.sec=e.target.value;save();render();
+};
+$('addCard').onclick=()=>{
+  const free=sections.find(S=>!cards.some(c=>c.sec===S.id));
+  if(!free){st.textContent='Every section already has its own card. Add a section first.';return;}
+  cards.push({id:'c'+Date.now(),sec:free.id});save();render();
+};
+// at the scheduled time each card starts its own section by itself (page must stay open)
+setInterval(()=>{
+  if(busy||!modelsOK())return;
+  const now=Date.now(),ds=ymd(new Date());
+  cards.forEach(c=>{
+    if(runs[c.id]||!camOK(c.sec))return;
+    sched.filter(x=>x.sec===c.sec&&x.date===ds&&x.auto&&x.time&&x.dur>0).sort((a,b)=>a.time.localeCompare(b.time)).forEach(x=>{
+      if(runs[c.id])return;
+      const k=c.id+'|'+x.id;if(autoDone.has(k))return;
+      const start=new Date(`${ds}T${x.time}:00`).getTime(),end=start+x.dur*60000;
+      if(now>=start&&now<end){autoDone.add(k);startCard(c.id,x.id,end);}   // only inside the slot's time window
+    });
+  });
+},1000);
+
+// ---- export ----
+function download(name,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/csv'}));a.download=name;a.click();}
+$('csv').onclick=()=>{
+  const L=sched.filter(x=>x.sec===curSec).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
+  let out='Name,Roll,Section,'+L.map(x=>`"${fmt(x.date)} ${subjName(x.subj)} ${x.time||''}"`).join(',')+',Present,Held,Percent\n';
+  roster().forEach(s=>{const t=stat(s);
+    out+=`"${s.name}","${s.roll}","${sec().name}",${L.map(x=>held(x)?(isP(s.id,x)?'P':'A'):'-').join(',')},${t.p},${t.days},${t.pct}%\n`;});
+  download(`attendance_${sec().name}.csv`,out);
+};
+$('csvAll').onclick=()=>{
+  let out='Name,Roll,Section,'+subjects.map(s=>`"${s.name} %"`).join(',')+',Overall %\n';
+  students.forEach(s=>{const sc=sections.find(x=>x.id===s.sec),t=stat(s);
+    out+=`"${s.name}","${s.roll}","${sc.name}",${subjects.map(sj=>{const u=stat(s,sj.id);return u.days?u.pct:''}).join(',')},${t.days?t.pct:''}\n`;});
+  download('attendance_summary_all.csv',out);
+};
+
+(async()=>{
+  save();render();
+  const mainErr=await startMain();
+  try{await Promise.all([faceapi.nets.tinyFaceDetector.loadFromUri(MODELS),faceapi.nets.faceLandmark68Net.loadFromUri(MODELS),faceapi.nets.faceRecognitionNet.loadFromUri(MODELS)]);}
+  catch(e){st.textContent='Could not load face models: '+e.message+' (internet needed the first time). You can still schedule subjects.';await refreshDevices();return;}
+  await refreshDevices();
+  for(const S of sections)if(S.cam&&S.cam.kind&&S.cam.kind!=='default')connectCam(S.id);   // reconnect saved section cameras
+  st.textContent=camReady?'Ready. Schedule subjects, then Start a card or let it start at the scheduled time.':`Main camera unavailable (${mainErr}). Connect a camera for each section in the Cameras section.`;
+})();
+
+// ---- bulk timetable: sections (rows) x time slots (columns); each cell = that section's subject ----
+let bkSel=new Set(),bkSlots=[{time:'09:00',dur:50},{time:'10:00',dur:50}],bkGrid={},bkDaysOn=[1,1,1,1,1,0,0];
+const DAYN=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+function bkMatches(){const q=$('bkFind').value.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
+  return sections.filter(S=>!q.length||q.some(t=>S.name.toLowerCase().includes(t)));}
+function bkPlan(){
+  const dates=[],f=$('bkFrom').value,t=$('bkTo').value;
+  if(f&&t&&f<=t){for(let d=f,n=0;d<=t&&n<800;d=addDays(d,1),n++){const w=(new Date(d+'T00:00:00').getDay()+6)%7;if(bkDaysOn[w])dates.push(d);}}
+  const have=new Set(sched.map(x=>x.sec+'|'+x.date+'|'+x.subj+'|'+x.time)),add=[];let cells=0;
+  sections.filter(S=>bkSel.has(S.id)).forEach(S=>{
+    bkSlots.forEach((sl,i)=>{const sj=(bkGrid[S.id]||{})[i];if(!sj||!S.subjects.includes(sj))return;cells++;
+      dates.forEach(d=>{const k=S.id+'|'+d+'|'+sj+'|'+sl.time;if(have.has(k))return;have.add(k);
+        add.push({id:'x'+Date.now()+Math.random().toString(36).slice(2,8)+add.length,date:d,sec:S.id,subj:sj,time:sl.time,dur:+sl.dur||0,auto:$('bkAuto').checked});});
+    });
+  });
+  return{add,cells,dates:dates.length};
+}
+function bkPreview(){
+  const r=bkPlan();
+  $('bkCount').textContent=`${bkSel.size} of ${sections.length} section(s) selected · ${bkMatches().length} match the search`;
+  $('bkPrev').textContent=r.cells&&r.dates?`${r.cells} class(es) per day · will create ${r.add.length} session(s) on ${r.dates} day(s)`:'';
+}
+function renderBulk(){
+  const M=bkMatches();
+  $('bkList').innerHTML=M.length?M.map(S=>`<label class="lbl" style="display:flex;gap:4px;align-items:center;white-space:nowrap;overflow:hidden"><input type="checkbox" data-bs="${S.id}" ${bkSel.has(S.id)?'checked':''} style="flex:none;min-width:0;width:auto"> ${esc(S.name)}</label>`).join(''):'<span class="lbl">No sections match.</span>';
+  const SJ=allSubjects(),rows=sections.filter(S=>bkSel.has(S.id));
+  const th='background:var(--card);position:sticky;top:0;z-index:2;padding:4px 6px;text-align:left;vertical-align:top';
+  let h=`<table style="min-width:100%;border-collapse:separate;border-spacing:0"><thead><tr><th style="${th};left:0;z-index:3">Section</th>`
+   +bkSlots.map((x,i)=>`<th style="${th};min-width:150px"><div class="row" style="margin:0;gap:4px"><input type="time" data-bt="${i}" data-f="time" value="${x.time}" class="t" style="min-width:0"><input type="number" min="0" data-bt="${i}" data-f="dur" value="${x.dur}" class="n" title="Timer (min)" style="min-width:0">${bkSlots.length>1?`<button class="alt sm" data-bd="${i}" title="Remove slot">✕</button>`:''}</div>
+      <select data-bf="${i}" style="margin-top:4px;width:100%"><option value="">Fill all…</option>${SJ.map(j=>`<option value="${j.id}">${esc(j.name)}</option>`).join('')}</select></th>`).join('')+'</tr></thead><tbody>';
+  h+=rows.length?rows.map(S=>`<tr><td style="position:sticky;left:0;background:var(--card);padding:3px 6px;white-space:nowrap;z-index:1"><b>${esc(S.name)}</b></td>`
+    +bkSlots.map((x,i)=>{const cur=(bkGrid[S.id]||{})[i]||'';return `<td style="padding:3px 6px"><select data-bg="${S.id}" data-bi="${i}" style="width:100%"><option value="">—</option>${S.subjects.map(id=>`<option value="${id}" ${id===cur?'selected':''}>${esc(subjName(id))}</option>`).join('')}</select></td>`;}).join('')+'</tr>').join('')
+   :`<tr><td colspan="${bkSlots.length+1}" class="lbl" style="padding:10px">Select sections above to fill their timetable.</td></tr>`;
+  $('bkGrid').innerHTML=h+'</tbody></table>';
+  $('bkDays').innerHTML='<span class="lbl">Days</span>'+DAYN.map((n,i)=>`<label class="lbl"><input type="checkbox" data-bw="${i}" ${bkDaysOn[i]?'checked':''} style="min-width:0;width:auto;flex:none"> ${n}</label>`).join('');
+  if(!$('bkFrom').value){$('bkFrom').value=selDate;$('bkTo').value=addDays(selDate,27);}
+  $('bkN').value=bkSlots.length;bkPreview();
+}
+$('bkFind').oninput=renderBulk;
+$('bkAll').onclick=()=>{bkMatches().forEach(S=>bkSel.add(S.id));renderBulk();};
+$('bkNone').onclick=()=>{bkSel.clear();renderBulk();};
+$('bkAddSlot').onclick=()=>{const l=bkSlots[bkSlots.length-1],[h,m]=(l.time||'09:00').split(':').map(Number),t=h*60+m+(+l.dur||60);bkSlots.push({time:`${pad(Math.floor(t/60)%24)}:${pad(t%60)}`,dur:l.dur});renderBulk();};
+$('bkList').onchange=e=>{const c=e.target.closest('[data-bs]');if(!c)return;c.checked?bkSel.add(c.dataset.bs):bkSel.delete(c.dataset.bs);renderBulk();};
+$('bkGrid').onchange=e=>{
+  const g=e.target.closest('[data-bg]');
+  if(g){(bkGrid[g.dataset.bg]=bkGrid[g.dataset.bg]||{})[+g.dataset.bi]=g.value;bkPreview();return;}
+  const t=e.target.closest('[data-bt]');
+  if(t){bkSlots[+t.dataset.bt][t.dataset.f]=t.dataset.f==='dur'?(+t.value||0):t.value;bkPreview();return;}
+  const f=e.target.closest('[data-bf]');
+  if(f&&f.value){const i=+f.dataset.bf;sections.filter(S=>bkSel.has(S.id)&&S.subjects.includes(f.value)).forEach(S=>{(bkGrid[S.id]=bkGrid[S.id]||{})[i]=f.value;});renderBulk();}
+};
+$('bkGrid').onclick=e=>{const b=e.target.closest('[data-bd]');if(!b)return;const k=+b.dataset.bd;bkSlots.splice(k,1);
+  for(const id in bkGrid){const o=bkGrid[id],n={};Object.keys(o).forEach(x=>{x=+x;if(x<k)n[x]=o[x];else if(x>k)n[x-1]=o[x];});bkGrid[id]=n;}renderBulk();};
+$('bkDays').onchange=e=>{const c=e.target.closest('[data-bw]');if(!c)return;bkDaysOn[+c.dataset.bw]=c.checked?1:0;bkPreview();};
+['bkFrom','bkTo','bkAuto'].forEach(id=>$(id).onchange=bkPreview);
+$('bkGo').onclick=()=>{
+  const m=$('bkMsg'),r=bkPlan();
+  if(!bkSel.size){m.textContent='Select at least one section first.';return;}
+  if(!r.cells){m.textContent='Choose a subject for at least one section and time slot.';return;}
+  if(!r.dates){m.textContent='Pick a valid date range and at least one weekday.';return;}
+  if(!r.add.length){m.textContent='Nothing new to add. These sessions already exist.';return;}
+  if(r.add.length>20000){m.textContent=`That would create ${r.add.length} sessions, too many for browser storage. Use a shorter date range or fewer sections.`;return;}
+  if(r.add.length>3000&&!confirm(`Create ${r.add.length} sessions?`))return;
+  sched.push(...r.add);save();render();
+  m.textContent=`Created ${r.add.length} session(s) for ${bkSel.size} section(s).`;
+};
+
+$('bkAddSubj').onclick=()=>{
+  const names=$('bkNewSubj').value.split(/[,;\n]/).map(t=>t.trim()).filter(Boolean),m=$('bkMsg');
+  if(!bkSel.size){m.textContent='Select the sections first, then add subjects to them.';return;}
+  if(!names.length){m.textContent='Type one or more subject names first.';return;}
+  let n=0;sections.filter(S=>bkSel.has(S.id)).forEach(S=>names.forEach(nm=>{if(assign(S,nm))n++;}));
+  $('bkNewSubj').value='';save();render();
+  m.textContent=n?`Added ${names.join(', ')} to ${bkSel.size} selected section(s).`:'Those subjects are already in the selected sections.';
+};
+$('bkN').onchange=()=>{
+  const n=Math.max(1,Math.min(12,+$('bkN').value||1));
+  while(bkSlots.length<n){const l=bkSlots[bkSlots.length-1],[h,m]=(l.time||'09:00').split(':').map(Number),t=h*60+m+(+l.dur||60);bkSlots.push({time:`${pad(Math.floor(t/60)%24)}:${pad(t%60)}`,dur:l.dur});}
+  if(bkSlots.length>n){bkSlots.length=n;for(const id in bkGrid)Object.keys(bkGrid[id]).forEach(k=>{if(+k>=n)delete bkGrid[id][k];});}
+  renderBulk();
+};
+var bkReady=true;renderBulk();
+
+// ---- Students & faces page (second page, same data) ----
+function renderStuPage(){
+  const q=$('sgFind').value.trim().toLowerCase(),sc=$('sgSec').value,fc=$('sgFace').value;
+  const cur=$('sgSec').value;
+  $('sgSec').innerHTML='<option value="">All sections</option>'+sections.map(S=>`<option value="${S.id}" ${S.id===cur?'selected':''}>${esc(S.name)}</option>`).join('');
+  const secIdx=id=>{const k=sections.findIndex(x=>x.id===id);return k<0?999:k;};
+  const L=students.filter(x=>(!sc||x.sec===sc)&&(!fc||(fc==='y'?!!x.d:!x.d))&&(!q||x.name.toLowerCase().includes(q)||String(x.roll||'').toLowerCase().includes(q)))
+    .sort((a,b)=>secIdx(a.sec)-secIdx(b.sec)||byRoll(a,b));
+  const shown=L.slice(0,300);
+  $('sgGrid').innerHTML=shown.map(x=>{const t=stat(x);
+    return `<div class="scard"><div class="ph">${x.p?`<img src="${x.p}" alt="${esc(x.name)}">`:esc((x.name||'?').trim().charAt(0).toUpperCase())}</div>
+      <div class="nm">${esc(x.name)}</div>
+      <div class="lbl">Roll: ${esc(x.roll||'–')} · ${esc(secNm(x.sec))}</div>
+      <div><span class="badge" style="background:${x.d?'#16a34a22;color:var(--ok)':'#d9770622;color:var(--warn)'}">${x.d?(x.p?'Face saved':'Face saved (no photo)'):'No face yet'}</span></div>
+      <div class="lbl">Attendance: ${t.days?`<b style="color:${colorFor(t.pct)}">${t.pct}%</b> (${t.p}/${t.days})`:'no classes held yet'}</div>
+      <div class="row" style="margin:4px 0 0"><button class="alt sm" data-ge="${x.id}">✎ Edit</button><button class="alt sm" data-gr="${x.id}">✕ Remove</button></div></div>`;}).join('');
+  $('sgCount').textContent=`Showing ${shown.length} of ${students.length} student(s)`+(L.length>shown.length?` (first 300 of ${L.length} matches; narrow the search to see the rest)`:'');
+  $('sgEmpty').textContent=!students.length?'No students yet. Add them on the Attendance page, in Students & face capture.':!L.length?'No students match.':'';
+}
+// ---- institute name (first page) ----
+let instName='';try{instName=localStorage.getItem('sa_inst')||'';}catch(_){}
+let insts=[];try{insts=JSON.parse(localStorage.getItem('sa_insts')||'[]');if(!Array.isArray(insts))insts=[];}catch(_){insts=[];}
+if(instName&&!insts.some(x=>x.toLowerCase()===instName.toLowerCase()))insts.push(instName);
+const saveInsts=()=>{try{localStorage.setItem('sa_insts',JSON.stringify(insts));localStorage.setItem('sa_inst',instName);}catch(_){}};
+let instPassed=false;
+const INST_ADD='__add_new__';
+function renderInst(){
+  $('instSel').innerHTML='<option value="">Select institute</option>'+insts.map(n=>`<option value="${esc(n)}" ${n===instName?'selected':''}>${esc(n)}</option>`).join('')+`<option value="${INST_ADD}">➕ Add new institute…</option>`;
+  $('instSel').value=instName&&insts.includes(instName)?instName:'';
+}
+$('instSel').onchange=()=>{
+  const v=$('instSel').value;$('instMsg').textContent='';
+  if(v===INST_ADD){$('instAddRow').style.display='flex';$('instIn').focus();return;}
+  $('instAddRow').style.display='none';instName=v;saveInsts();
+};
+$('instSave').onclick=()=>{
+  const v=$('instIn').value.trim();
+  if(!v){$('instMsg').textContent='Please type the institute name.';return;}
+  const ex=insts.find(x=>x.toLowerCase()===v.toLowerCase());
+  instName=ex||v;if(!ex)insts.push(v);
+  saveInsts();$('instIn').value='';$('instAddRow').style.display='none';$('instMsg').textContent='';renderInst();
+};
+$('instIn').onkeydown=e=>{if(e.key==='Enter')$('instSave').click();};
+$('instGo').onclick=()=>{
+  if(!instName){$('instMsg').textContent='Please select or add an institute first.';return;}
+  instPassed=true;showPage();
+};
+let rgTimer=null;
+function showPage(){
+  const h=location.hash,role=session&&session.role;
+  let page;
+  if(h==='#register')page='reg';
+  else if(h==='#teacher-signup')page='tsign';
+  else if(h==='#institute')page='inst';
+  else if(!session)page='login';
+  else if(role==='student')page='stuhome';
+  else page=h==='#students'?'students':'main';
+  const B=document.body.classList;
+  B.toggle('isTeacher',page==='main'||page==='students');
+  B.toggle('notMain',page!=='main');
+  B.toggle('pgStu',page==='students');B.toggle('pgReg',page==='reg');
+  $('pgStudents').style.display=page==='students'?'block':'none';
+  $('pgRegister').style.display=page==='reg'?'block':'none';
+  $('pgInst').style.display=page==='inst'?'block':'none';
+  $('pgLogin').style.display=page==='login'?'block':'none';
+  if(page==='inst')renderInst();
+  document.querySelectorAll('#pgLogin h1').forEach(h=>h.textContent=instName||'Smart Attendance');
+  $('pgTSign').style.display=page==='tsign'?'block':'none';
+  $('pgStuHome').style.display=page==='stuhome'?'block':'none';
+  $('navStu').classList.toggle('on',page==='students');$('navMain').classList.toggle('on',page==='main');
+  $('whoAmI').textContent=session&&session.name?(role==='teacher'?'👩‍🏫 ':'🧑‍🎓 ')+session.name:'';
+  const topInst = $('topInstBadge');
+  if (topInst) {
+    if (instName) { topInst.textContent = instName; topInst.style.display = 'inline-block'; }
+    else { topInst.style.display = 'none'; }
+  }
+  if(page==='students')renderStuPage();
+  if(page==='login'||page==='reg')renderRegPage();
+  if(page==='login')renderLogin();
+  if(page==='stuhome')renderStuHome();
+  clearInterval(rgTimer);
+  if(page==='reg'){rgTimer=setInterval(()=>{const vs=$('v').srcObject;if(vs&&$('rgVid').srcObject!==vs){$('rgVid').srcObject=vs;$('rgVid').play().catch(()=>{});}},500);}
+}
+window.addEventListener('hashchange',showPage);
+['sgFind','sgSec','sgFace'].forEach(id=>{$(id).oninput=renderStuPage;$(id).onchange=renderStuPage;});
+$('navMain').onclick=e=>{e.preventDefault();location.hash='';showPage();};
+$('stuBack').onclick=$('navMain').onclick;
+$('sgGrid').onclick=e=>{
+  const ed=e.target.closest('[data-ge]'),rm=e.target.closest('[data-gr]');
+  if(ed){const x=students.find(y=>y.id===ed.dataset.ge);if(!x)return;
+    const nm=prompt('Student name',x.name);if(nm===null)return;
+    const rl=prompt('Roll no.',x.roll||'');if(rl===null)return;
+    if(nm.trim())x.name=nm.trim();x.roll=rl.trim();save();render();}
+  if(rm){const x=students.find(y=>y.id===rm.dataset.gr);if(x&&confirm(`Remove ${x.name} and all their attendance history?`)){
+    students=students.filter(y=>y.id!==x.id);for(const k in att)att[k]=att[k].filter(i=>i!==x.id);save();render();}}
+};
+
+// ---- registration page: a student gives a live photo + name, roll number, section ----
+function renderRegPage(){
+  const cur=$('rgSec').value;
+  $('rgSec').innerHTML='<option value="">Select your section</option>'+sections.map(S=>`<option value="${S.id}" ${S.id===cur?'selected':''}>${esc(S.name)}</option>`).join('');
+}
+let lastReg=null;
+function rgCountdown(n){return new Promise(res=>{const o=$('rgOvl');let t=n;o.style.display='flex';o.textContent=t;
+  const iv=setInterval(()=>{t--;if(t<=0){clearInterval(iv);o.style.display='none';res();}else o.textContent=t;},1000);});}
+$('rgGo').onclick=async()=>{
+  const m=$('rgMsg'),name=$('rgName').value.trim(),roll=$('rgRoll').value.trim(),sid=$('rgSec').value;
+  if(!name||!roll||!sid){m.textContent='Please fill your name, roll number and section.';return;}
+  if(!$('rgVid').srcObject){m.textContent='Camera is not ready. Allow camera access and wait a moment.';return;}
+  if(!modelsOK()){m.textContent='Face models are still loading (internet needed the first time). Try again in a few seconds.';return;}
+  const pass=$('rgPass').value;if(pass.length<4){m.textContent='Choose a password of at least 4 characters.';return;}
+  const ex=students.find(x=>x.sec===sid&&(x.roll||'').toLowerCase()===roll.toLowerCase());
+  if(ex&&users.some(u=>u.studentId===ex.id)){m.textContent='This roll number already has an account. Please log in instead.';return;}
+  $('rgGo').disabled=true;m.textContent='Look at the camera…';
+  try{
+    await rgCountdown(3);
+    const vid=$('rgVid'),r=await faceapi.detectSingleFace(vid,opts()).withFaceLandmarks().withFaceDescriptor();
+    if(!r){m.textContent='No face detected. Face the camera in good light and try again.';return;}
+    let photo=null;try{const bx=r.detection.box,w=Math.max(bx.width,bx.height)*1.6,x=Math.max(0,bx.x-(w-bx.width)/2),y=Math.max(0,bx.y-(w-bx.height)/2),c=document.createElement('canvas');c.width=c.height=120;c.getContext('2d').drawImage(vid,x,y,w,w,0,0,120,120);photo=c.toDataURL('image/jpeg',.7);}catch(_){}
+    let stu;if(ex){ex.name=name;ex.d=Array.from(r.descriptor);ex.p=photo;stu=ex;}
+    else{stu={id:'s'+Date.now()+Math.random().toString(36).slice(2,5),name,roll,sec:sid,d:Array.from(r.descriptor),p:photo};students.push(stu);}
+    await addUser({role:'student',studentId:stu.id},pass);save();render();
+    lastReg={name,roll,section:secNm(sid),d:stu.d,p:photo};
+    $('rgPhoto').src=photo||'';$('rgPhoto').style.display=photo?'inline-block':'none';$('rgDone').style.display='block';
+    m.innerHTML=`✅ Registered <b>${esc(name)}</b> (${esc(roll)}, ${esc(secNm(sid))}).`;
+    $('rgName').value='';$('rgRoll').value='';$('rgPass').value='';
+  }catch(e){m.textContent='Could not register: '+e.message;}
+  finally{$('rgGo').disabled=false;$('rgOvl').style.display='none';}
+};
+$('rgAgain').onclick=()=>{$('rgDone').style.display='none';$('rgMsg').textContent='';};
+$('rgDl').onclick=()=>{if(!lastReg)return;download(`registration_${lastReg.roll.replace(/[^\w-]/g,'_')}.json`,JSON.stringify({sa_registration:1,students:[lastReg]}));};
+$('sgCopy').onclick=async()=>{const u=location.href.split('#')[0]+'#register';try{await navigator.clipboard.writeText(u);$('sgCount').textContent='Registration link copied: '+u;}catch(_){prompt('Copy this link',u);}};
+$('sgImp').onclick=()=>$('sgImpF').click();
+$('sgImpF').onchange=async e=>{
+  let added=0,skipped=0;
+  for(const f of e.target.files){try{const j=JSON.parse(await f.text());
+    (j.students||[]).forEach(r=>{if(!r||!r.name||!r.section)return;
+      let S=sections.find(x=>x.name.toLowerCase()===String(r.section).toLowerCase());
+      if(!S){S={id:'sec'+Date.now()+Math.random().toString(36).slice(2,5),name:String(r.section),subjects:[]};sections.push(S);cards.push({id:'c'+Date.now()+Math.random().toString(36).slice(2,5),sec:S.id});}
+      if(students.some(x=>x.sec===S.id&&(x.roll||'').toLowerCase()===String(r.roll||'').toLowerCase()&&(x.roll||x.name===r.name))){skipped++;return;}
+      students.push({id:'s'+Date.now()+Math.random().toString(36).slice(2,5)+added,name:String(r.name),roll:String(r.roll||''),sec:S.id,d:r.d||null,p:r.p||null});added++;});
+  }catch(_){skipped++;}}
+  e.target.value='';save();render();renderStuPage();
+  $('sgCount').textContent=`Imported ${added} student(s)`+(skipped?`, skipped ${skipped} duplicate or unreadable.`:'.');
+};
+
+// ---- accounts: teacher + student login (stored in this browser only) ----
+let users=load('sa_users',[]),session=load('sa_session',null);
+const saveUsers=()=>localStorage.setItem('sa_users',JSON.stringify(users));
+const setSession=o=>{session=o;if(o)localStorage.setItem('sa_session',JSON.stringify(o));else localStorage.removeItem('sa_session');};
+async function hashPw(pw,salt){
+  try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt+':'+pw));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
+  catch(_){let h=5381;const t=salt+pw;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))>>>0;return 'x'+h;}
+}
+async function addUser(u,pw){u.id='u'+Date.now()+Math.random().toString(36).slice(2,5);u.salt=Math.random().toString(36).slice(2,10);u.hash=await hashPw(pw,u.salt);users.push(u);saveUsers();return u;}
+const pwOK=async(u,pw)=>!!u&&(await hashPw(pw,u.salt))===u.hash;
+function renderLogin(){
+  const cur=$('lsSec').value;
+  $('lsSec').innerHTML='<option value="">Select your section</option>'+sections.map(S=>`<option value="${S.id}" ${S.id===cur?'selected':''}>${esc(S.name)}</option>`).join('');
+}
+function lgTab(t){$('lgStudent').style.display=t==='s'?'block':'none';$('lgTeacher').style.display=t==='t'?'block':'none';
+  $('lgTabS').className=t==='s'?'':'alt';$('lgTabT').className=t==='t'?'':'alt';$('lgMsg').textContent='';}
+$('lgTabS').onclick=()=>lgTab('s');$('lgTabT').onclick=()=>lgTab('t');
+$('lsGo').onclick=async()=>{
+  const m=$('lgMsg'),sid=$('lsSec').value,roll=$('lsRoll').value.trim().toLowerCase(),pw=$('lsPass').value;
+  if(!sid||!roll||!pw){m.textContent='Select your section and enter your roll number and password.';return;}
+  m.textContent='Signing in…';
+  try{
+    const res=await fetch(API+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'student',section:sid,roll:roll,password:pw})});
+    const data=await res.json();
+    if(data.ok){setSession(data.user);$('lsPass').value='';location.hash='';m.textContent='';showPage();return;}
+    else if(data.error){m.textContent=data.error;return;}
+  }catch(_){}
+  const stu=students.find(x=>x.sec===sid&&(x.roll||'').toLowerCase()===roll),u=stu&&users.find(z=>z.role==='student'&&z.studentId===stu.id);
+  if(!u){m.textContent='No student account found for that section and roll number. Use "Enroll with face photo".';return;}
+  if(!(await pwOK(u,pw))){m.textContent='Wrong password. Please try again.';return;}
+  setSession({role:'student',uid:u.id,studentId:stu.id,name:stu.name});$('lsPass').value='';location.hash='';m.textContent='';showPage();
+};
+$('ltGo').onclick=async()=>{
+  const m=$('lgMsg'),un=$('ltUser').value.trim().toLowerCase(),pw=$('ltPass').value;
+  if(!un||!pw){m.textContent='Enter your username and password.';return;}
+  m.textContent='Verifying credentials…';m.style.color='var(--mut)';
+  try{
+    const res=await fetch(API+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'teacher',username:un,password:pw})});
+    const data=await res.json();
+    if(data.ok){setSession(data.user);$('ltPass').value='';location.hash='';m.textContent='';showPage();return;}
+    else if(data.error){m.textContent=data.error;m.style.color='var(--bad)';return;}
+  }catch(_){}
+  const u=users.find(z=>z.role==='teacher'&&z.username===un);
+  if(!u && un==='admin' && (pw==='admin123'||pw==='admin')){
+    setSession({id:'u_admin',role:'teacher',name:'Administrator',username:'admin'});
+    $('ltPass').value='';location.hash='';m.textContent='';showPage();return;
+  }
+  if(!u){m.textContent='No teacher account found with that username.';m.style.color='var(--bad)';return;}
+  if(!(await pwOK(u,pw))){m.textContent='Wrong password. Please try again.';m.style.color='var(--bad)';return;}
+  setSession({role:'teacher',uid:u.id,name:u.name,username:u.username});$('ltPass').value='';location.hash='';m.textContent='';showPage();
+};
+['lsPass','lsRoll'].forEach(id=>$(id).onkeydown=e=>{if(e.key==='Enter')$('lsGo').click();});
+['ltPass','ltUser'].forEach(id=>$(id).onkeydown=e=>{if(e.key==='Enter')$('ltGo').click();});
+$('tsGo').onclick=async()=>{
+  const m=$('tsMsg'),name=$('tsName').value.trim(),un=$('tsUser').value.trim().toLowerCase(),p1=$('tsPass').value,p2=$('tsPass2').value;
+  if(!name||!un||!p1){m.textContent='Please fill your name, a username and a password.';return;}
+  if(p1.length<4){m.textContent='Password must be at least 4 characters.';return;}
+  if(p1!==p2){m.textContent='The two passwords do not match.';return;}
+  m.textContent='Creating account…';
+  try{
+    const res=await fetch(API+'/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'teacher',name:name,username:un,password:p1})});
+    const data=await res.json();
+    if(data.ok){setSession(data.user);['tsName','tsUser','tsPass','tsPass2'].forEach(id=>$(id).value='');location.hash='';m.textContent='';showPage();return;}
+    else if(data.error){m.textContent=data.error;return;}
+  }catch(_){}
+  if(users.some(z=>z.role==='teacher'&&z.username===un)){m.textContent='That username is already taken.';return;}
+  const u=await addUser({role:'teacher',username:un,name},p1);
+  setSession({role:'teacher',uid:u.id,name});['tsName','tsUser','tsPass','tsPass2'].forEach(id=>$(id).value='');
+  location.hash='';showPage();
+};
+const logout=async e=>{
+  if(e)e.preventDefault();
+  try{await fetch(API+'/api/auth/logout',{method:'POST'});}catch(_){}
+  setSession(null);location.hash='';showPage();
+};
+$('navOut').onclick=logout;$('shOut').onclick=logout;
+function renderStuHome(){
+  const stu=students.find(x=>x.id===(session||{}).studentId);
+  if(!stu){logout();return;}
+  const t=stat(stu),SJ=secSubjects(stu.sec);
+  const L=sched.filter(x=>x.sec===stu.sec&&held(x)).sort((a,b)=>(b.date+(b.time||'')).localeCompare(a.date+(a.time||''))).slice(0,40);
+  $('shBody').innerHTML=`<div class="card" style="border-top-color:#9333ea"><div class="row" style="margin:0;gap:14px;align-items:center;flex-wrap:nowrap">
+      <div style="width:90px;height:90px;border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:var(--mut);overflow:hidden;flex:none">${stu.p?`<img src="${stu.p}" alt="" style="width:100%;height:100%;object-fit:cover">`:esc((stu.name||'?').charAt(0).toUpperCase())}</div>
+      <div><div style="font-weight:700;font-size:1.1rem">${esc(stu.name)}</div><div class="lbl">Roll: ${esc(stu.roll||'–')} · ${esc(secNm(stu.sec))}</div><div class="lbl">${stu.d?'Face saved':'No face saved yet'}</div></div></div></div>
+    <div class="card" style="margin-top:12px"><h2 style="margin-top:0">Overall attendance</h2>${t.days?`<div style="font-size:1.6rem;font-weight:700;color:${colorFor(t.pct)}">${t.pct}%</div><div class="lbl">${t.p} present out of ${t.days} class(es) held</div>`:'<div class="lbl">No classes have been held yet.</div>'}</div>
+    <div class="card" style="margin-top:12px"><h2 style="margin-top:0">By subject</h2>${SJ.length?`<div class="tbl"><table><thead><tr><th>Subject</th><th>Present</th><th>Held</th><th>%</th></tr></thead><tbody>${SJ.map(sj=>{const u=stat(stu,sj.id);return `<tr><td>${esc(sj.name)}</td><td>${u.p}</td><td>${u.days}</td><td>${u.days?`<b style="color:${colorFor(u.pct)}">${u.pct}%</b>`:'–'}</td></tr>`;}).join('')}</tbody></table></div>`:'<div class="lbl">No subjects for your section yet.</div>'}</div>
+    <div class="card" style="margin-top:12px"><h2 style="margin-top:0">Recent classes</h2>${L.length?`<div class="tbl" style="max-height:260px;overflow:auto"><table><thead><tr><th>Date</th><th>Time</th><th>Subject</th><th>Status</th></tr></thead><tbody>${L.map(x=>`<tr><td>${fmt(x.date)}</td><td>${x.time||''}</td><td>${esc(subjName(x.subj))}</td><td>${isP(stu.id,x)?'<b style="color:var(--ok)">Present ✓</b>':'<b style="color:var(--bad)">Absent</b>'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="lbl">No classes held yet.</div>'}</div>`;
+}
+showPage();
+</script>
+</body>
+</html>

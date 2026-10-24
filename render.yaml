@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: smart-attendance
+    runtime: docker
+    plan: free               # no persistent disk needed: all data lives in MongoDB Atlas
+    envVars:
+      - key: MONGODB_URI     # your Atlas connection string, configured in Render environment variables
+        sync: false
+      - key: MONGODB_DB
+        value: smart_attendance
